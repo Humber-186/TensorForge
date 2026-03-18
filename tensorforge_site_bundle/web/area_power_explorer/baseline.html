@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TensorForge Baseline Comparison</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <nav class="top-nav">
+        <a href="/index.html">Query</a>
+        <a href="/ppa.html">PPA Explorer</a>
+        <a href="/baseline.html">Baseline Compare</a>
+        <a href="/breakdown.html">Breakdown</a>
+      </nav>
+      <section class="hero">
+        <h1>TensorForge Baseline Comparison</h1>
+        <p>Interactive comparison between baseline dot-product implementations and TensorForge wrapper-based results.</p>
+      </section>
+      <section class="panel filters">
+        <h2>Comparison Filters</h2>
+        <form id="baseline-filter-form" class="chart-filter-form">
+          <label>Precision <select id="baseline-precision"></select></label>
+          <label>Metric <select id="baseline-metric"><option value="area_um2">Area (um²)</option><option value="power_total_mw">Power (mW)</option></select></label>
+        </form>
+      </section>
+      <section class="panel chart-panel">
+        <h2>Baseline vs TensorForge</h2>
+        <svg id="baseline-chart" class="chart-svg" viewBox="0 0 960 480"></svg>
+        <div id="baseline-detail" class="detail-box">(Choose a precision to compare baseline and wrapper trends over K.)</div>
+      </section>
+    </main>
+    <script src="/charts.js"></script>
+  </body>
+</html>

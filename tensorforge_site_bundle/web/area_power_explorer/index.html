@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TensorForge: Systematic Design Space Exploration of Multi-Precision Tensor Cores for GPGPUs</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <nav class="top-nav">
+        <a href="/index.html">Query</a>
+        <a href="/ppa.html">PPA Explorer</a>
+        <a href="/baseline.html">Baseline Compare</a>
+        <a href="/breakdown.html">Breakdown</a>
+      </nav>
+      <section class="hero">
+        <h1>TensorForge: Systematic Design Space Exploration of Multi-Precision Tensor Cores for GPGPUs</h1>
+        <p>Query measured and derived area/power data with explicit formulas, MX/NV metadata, and local visualization.</p>
+        <p class="hero-note">PPA results shown here are synthesized by <strong>DC (Design Compiler)</strong> under <strong>TSMC 22nm</strong> assumptions.</p>
+      </section>
+      <section class="panel filters">
+        <h2>Query Controls</h2>
+        <form id="query-form">
+          <label>M <select name="m" id="dim-m"></select></label>
+          <label>N <select name="n" id="dim-n"></select></label>
+          <label>K <select name="k" id="dim-k"></select></label>
+          <label>Clock (MHz) <select name="clk_mhz" id="clk-mhz"></select></label>
+          <label>Precision <select name="precision_name" id="precision-name"></select></label>
+          <label>MX <select name="mx" id="mx-select"></select></label>
+          <label>NV <select name="nv" id="nv-select"></select></label>
+          <label>Norm <select name="norm_kind" id="norm-kind"></select></label>
+          <label>Acc <select name="acc_kind" id="acc-kind"></select></label>
+          <label>Out <select name="out_kind" id="out-kind"></select></label>
+          <label>midMat <select name="midmat" id="midmat-select"></select></label>
+          <label>Prediction Fallback <select name="allow_predicted" id="allow-predicted"></select></label>
+          <button type="submit">Run Query</button>
+        </form>
+      </section>
+      <section class="panel metrics">
+        <h2>Results</h2>
+        <div id="result-cards" class="cards"></div>
+        <pre id="result-formulas" class="formulas"></pre>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

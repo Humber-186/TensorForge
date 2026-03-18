@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TensorForge PPA Explorer</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <nav class="top-nav">
+        <a href="/index.html">Query</a>
+        <a href="/ppa.html">PPA Explorer</a>
+        <a href="/baseline.html">Baseline Compare</a>
+        <a href="/breakdown.html">Breakdown</a>
+      </nav>
+      <section class="hero">
+        <h1>TensorForge PPA Explorer</h1>
+        <p>Interactive area-versus-power views for measured dot-product units and measured arrays under DC synthesis in TSMC 22nm.</p>
+      </section>
+      <section class="panel chart-panel">
+        <h2>Dot Product Units</h2>
+        <form id="ppa-unit-filter-form" class="chart-filter-form">
+          <label>Clock (MHz) <select id="ppa-unit-clk"></select></label>
+          <label>Precision <select id="ppa-unit-precision"></select></label>
+        </form>
+        <svg id="ppa-unit-chart" class="chart-svg" viewBox="0 0 960 480"></svg>
+        <div id="ppa-unit-detail" class="detail-box">(Hover a unit point to inspect its configuration and PPA.)</div>
+      </section>
+      <section class="panel chart-panel">
+        <h2>Measured Arrays</h2>
+        <form id="ppa-array-filter-form" class="chart-filter-form">
+          <label>Clock (MHz) <select id="ppa-array-clk"></select></label>
+          <label>Precision <select id="ppa-array-precision"></select></label>
+        </form>
+        <svg id="ppa-array-chart" class="chart-svg" viewBox="0 0 960 480"></svg>
+        <div id="ppa-array-detail" class="detail-box">(Hover an array point to inspect its configuration and PPA.)</div>
+      </section>
+    </main>
+    <script src="/charts.js"></script>
+  </body>
+</html>

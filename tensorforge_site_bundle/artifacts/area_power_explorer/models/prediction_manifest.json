@@ -1,0 +1,68 @@
+{
+  "source_csv": "plot-reuse/figure/dp/dp.csv",
+  "python": "plot-reuse/figure/dp/.venv/bin/python3",
+  "training_summary": {
+    "source_csv": "plot-reuse/figure/dp/dp.csv",
+    "total_rows": 560,
+    "design_counts": {
+      "DotProductINT8INT4Wrapper": 70,
+      "DotProductINT8INT4ReuseWrapper": 35,
+      "DotProductWrapper": 420,
+      "DotProductFP4Wrapper": 35
+    },
+    "unexpected_design_names": []
+  },
+  "runs": [
+    {
+      "model_name": "dp_model_by_clk",
+      "script": "plot-reuse/figure/dp/dp_model.py",
+      "cmd": [
+        "plot-reuse/figure/dp/.venv/bin/python3",
+        "plot-reuse/figure/dp/dp_model.py",
+        "--csv",
+        "plot-reuse/figure/dp/dp.csv",
+        "--group",
+        "clk_mhz",
+        "--out-json",
+        "artifacts/area_power_explorer/models/dp_model_metrics_by_clk.json",
+        "--out-formula",
+        "artifacts/area_power_explorer/models/dp_model_formula_by_clk.txt",
+        "--out-features",
+        "artifacts/area_power_explorer/models/dp_features.csv",
+        "--out-pred",
+        "artifacts/area_power_explorer/models/dp_predictions_by_clk.csv"
+      ],
+      "outputs": [
+        "artifacts/area_power_explorer/models/dp_model_metrics_by_clk.json",
+        "artifacts/area_power_explorer/models/dp_model_formula_by_clk.txt",
+        "artifacts/area_power_explorer/models/dp_features.csv",
+        "artifacts/area_power_explorer/models/dp_predictions_by_clk.csv"
+      ]
+    },
+    {
+      "model_name": "dp_two_stage_reuse_by_clk",
+      "script": "plot-reuse/figure/dp/dp_two_stage_model.py",
+      "cmd": [
+        "plot-reuse/figure/dp/.venv/bin/python3",
+        "plot-reuse/figure/dp/dp_two_stage_model.py",
+        "--csv",
+        "plot-reuse/figure/dp/dp.csv",
+        "--group",
+        "clk_mhz",
+        "--cv-scope",
+        "reuse",
+        "--out-metrics",
+        "artifacts/area_power_explorer/models/dp_two_stage_metrics_reuse_by_clk.json",
+        "--out-formula",
+        "artifacts/area_power_explorer/models/dp_two_stage_formula_reuse_by_clk.txt",
+        "--out-pred",
+        "artifacts/area_power_explorer/models/dp_two_stage_predictions_reuse_by_clk.csv"
+      ],
+      "outputs": [
+        "artifacts/area_power_explorer/models/dp_two_stage_metrics_reuse_by_clk.json",
+        "artifacts/area_power_explorer/models/dp_two_stage_formula_reuse_by_clk.txt",
+        "artifacts/area_power_explorer/models/dp_two_stage_predictions_reuse_by_clk.csv"
+      ]
+    }
+  ]
+}

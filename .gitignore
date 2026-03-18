@@ -1,0 +1,6 @@
+# Local planning/design notes should stay local
+/docs/plans/
+
+# Never publish FP4 Verilog/SystemVerilog sources
+**/*FP4*.sv
+**/*FP4*.v

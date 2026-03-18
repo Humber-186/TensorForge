@@ -1,0 +1,65 @@
+==== area_value (log_target=True) ====
+ln(area_value) = 6.94741
+  - 0.667055 * has_int_acc
+  + 0.556591 * midMat_26
+  - 0.373236 * midMat_9
+  - 0.351493 * lut_fp4
+  + 0.35053 * log2_dimK
+  - 0.257524 * out_kind_INT32
+  + 0.257524 * has_norm_align
+  + 0.257524 * has_fp_acc
+  - 0.238686 * total_format_count
+  + 0.160482 * fp_mantissa_groups
+  + 0.160482 * fp_exponent_groups
+  + 0.154554 * has_mx_scale
+  - 0.132305 * int_format_count
+  + 0.116533 * int_bits_total
+  - 0.106381 * fp_format_count
+  + 0.0980753 * mx_withMX
+  + 0.0915259 * midMat_22
+  - 0.0733356 * mx_noMXnoNV
+  + 0.0564789 * mx_withMXnoNV
+  - 0.0312643 * out_kind_FP32
+  - 0.0173569 * midMat_17
+  + 0.0114505 * fp_mantissa_bits_total
+  + 0.00136566 * int_bits_x_dimK
+  - 0.000913017 * dimK
+  + 0.000785268 * fp_format_count_x_dimK
+  + 0.000350463 * fp_mantissa_bits_x_dimK
+  + 0.000250888 * int_format_count_x_dimK
+  + 7.84123e-05 * clk_mhz
+  + 0 * has_adder_tree
+=> area_value = exp(ln(area_value))
+
+==== total_value (log_target=True) ====
+ln(total_value) = -0.690786
+  - 0.401718 * lut_fp4
+  - 0.353241 * out_kind_INT32
+  + 0.353241 * has_norm_align
+  + 0.353241 * has_fp_acc
+  - 0.353017 * int_format_count
+  + 0.348349 * midMat_26
+  + 0.316259 * log2_dimK
+  - 0.260733 * total_format_count
+  - 0.183846 * midMat_9
+  + 0.14097 * midMat_22
+  - 0.104855 * out_kind_FP32
+  + 0.104424 * fp_mantissa_groups
+  + 0.104424 * fp_exponent_groups
+  + 0.0980601 * int_bits_total
+  + 0.0940522 * mx_noMXnoNV
+  + 0.0922839 * fp_format_count
+  + 0.0561802 * has_mx_scale
+  + 0.0477675 * midMat_17
+  + 0.0297845 * mx_withMXnoNV
+  + 0.0263958 * mx_withMX
+  + 0.00552551 * has_int_acc
+  - 0.00195758 * int_format_count_x_dimK
+  + 0.00143288 * int_bits_x_dimK
+  + 0.00142128 * dimK
+  - 0.00139055 * fp_mantissa_bits_total
+  + 0.000732529 * clk_mhz
+  + 0.000183066 * fp_mantissa_bits_x_dimK
+  - 9.11674e-05 * fp_format_count_x_dimK
+  + 0 * has_adder_tree
+=> total_value = exp(ln(total_value))

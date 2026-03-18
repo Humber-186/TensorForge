@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TensorForge Breakdown</title>
+    <link rel="stylesheet" href="/styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <nav class="top-nav">
+        <a href="/index.html">Query</a>
+        <a href="/ppa.html">PPA Explorer</a>
+        <a href="/baseline.html">Baseline Compare</a>
+        <a href="/breakdown.html">Breakdown</a>
+      </nav>
+      <section class="hero">
+        <h1>TensorForge Breakdown</h1>
+        <p>Interactive donut charts for top-level and rolled component area breakdowns derived from Ventus-related CSV reports.</p>
+      </section>
+      <section class="panel filters">
+        <h2>Breakdown View</h2>
+        <form id="breakdown-filter-form" class="chart-filter-form">
+          <label>Dataset <select id="breakdown-series"></select></label>
+        </form>
+      </section>
+      <section class="panel chart-panel">
+        <h2>Area Breakdown</h2>
+        <svg id="breakdown-chart" class="chart-svg" viewBox="0 0 960 520"></svg>
+        <div id="breakdown-detail" class="detail-box">(Hover donut slices to inspect module area share.)</div>
+      </section>
+    </main>
+    <script src="/charts.js"></script>
+  </body>
+</html>
