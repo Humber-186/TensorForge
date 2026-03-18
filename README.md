@@ -12,9 +12,3 @@ TensorForge is a cleaned and publishable snapshot of RTL assets plus the bundled
   - `web/area_power_explorer/`: bundled frontend
   - `artifacts/area_power_explorer/`: packaged DB/model artifacts
   - `data/`: website-required source datasets
-
-## Publishing Rules
-
-- Local planning notes under `docs/plans/` are intentionally ignored.
-- Any Verilog/SystemVerilog file whose filename contains `FP4` is intentionally excluded from GitHub publication.
-- Bundle artifacts were sanitized to remove machine-specific absolute paths before publication.
