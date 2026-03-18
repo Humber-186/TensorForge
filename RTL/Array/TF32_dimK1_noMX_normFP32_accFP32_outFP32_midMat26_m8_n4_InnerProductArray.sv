@@ -2210,7 +2210,7 @@ module DotProductWrapper(
   assign io_in_ready = _mul_io_in_ready & _exp_io_in_ready;
 endmodule
 
-module InnerProductArrayDAC(
+module InnerProductArray(
   input         clock,
                 reset,
   output        io_in_ready,

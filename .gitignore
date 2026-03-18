@@ -4,3 +4,10 @@
 # Never publish FP4 Verilog/SystemVerilog sources
 **/*FP4*.sv
 **/*FP4*.v
+
+# Never publish local strategy scratch notes
+/tensorforge_site_bundle/data/strategy.md
+/tensorforge_site_bundle/plot-reuse/figure/dp/strategy.md
+
+# Python cache
+**/__pycache__/

@@ -7,7 +7,7 @@ This folder contains the TensorForge website and the minimal runtime data needed
 - `tools/area_power_explorer/`: backend server and build/query tooling
 - `web/area_power_explorer/`: frontend pages and interactive charts
 - `artifacts/area_power_explorer/`: built SQLite database and prediction artifacts
-- `plot-result/`, `plot-baseline/`, `plot-Ventus/`, `plot-reuse/figure/dp/`: required source CSV/script subset
+- `data/`: required source CSV/script subset
 
 ## Usage
 

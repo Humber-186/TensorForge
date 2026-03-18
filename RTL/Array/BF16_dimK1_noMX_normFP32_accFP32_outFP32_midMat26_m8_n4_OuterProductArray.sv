@@ -1209,7 +1209,7 @@ module OuterPE(
   assign io_out_bits_fflags = _mulPipe_io_out_bits_fflags | _addPipe_io_out_bits_fflags;
 endmodule
 
-module OuterProductArrayDAC(
+module OuterProductArray(
   input         clock,
                 reset,
   output        io_in_ready,

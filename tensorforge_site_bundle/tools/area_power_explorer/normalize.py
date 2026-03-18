@@ -21,7 +21,7 @@ _DP_NAMES = {
     "DotProductWrapperFP16INT",
     "DotProductBinary",
 }
-_ARRAY_NAMES = {"InnerProductArrayDAC", "OuterProductArrayDAC"}
+_ARRAY_NAMES = {"InnerProductArray", "OuterProductArray"}
 
 
 def _coalesce_text(*values: Any) -> str:

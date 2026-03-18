@@ -10,8 +10,8 @@ from .ingest import load_canonical_rows
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 DEFAULT_SOURCES = [
-    ROOT / "plot-result" / "dc_area_power.csv",
-    ROOT / "plot-baseline" / "DPVSbaseline.csv",
+    ROOT / "data" / "area_power_measurements.csv",
+    ROOT / "data" / "baseline_comparison.csv",
 ]
 
 _SOURCE_ROW_FIELDS = [

@@ -1,8 +1,8 @@
 {
-  "source_csv": "plot-reuse/figure/dp/dp.csv",
-  "python": "plot-reuse/figure/dp/.venv/bin/python3",
+  "source_csv": "data/dp_training.csv",
+  "python": "data/.venv/bin/python3",
   "training_summary": {
-    "source_csv": "plot-reuse/figure/dp/dp.csv",
+    "source_csv": "data/dp_training.csv",
     "total_rows": 560,
     "design_counts": {
       "DotProductINT8INT4Wrapper": 70,
@@ -15,12 +15,12 @@
   "runs": [
     {
       "model_name": "dp_model_by_clk",
-      "script": "plot-reuse/figure/dp/dp_model.py",
+      "script": "data/dp_model.py",
       "cmd": [
-        "plot-reuse/figure/dp/.venv/bin/python3",
-        "plot-reuse/figure/dp/dp_model.py",
+        "data/.venv/bin/python3",
+        "data/dp_model.py",
         "--csv",
-        "plot-reuse/figure/dp/dp.csv",
+        "data/dp_training.csv",
         "--group",
         "clk_mhz",
         "--out-json",
@@ -41,12 +41,12 @@
     },
     {
       "model_name": "dp_two_stage_reuse_by_clk",
-      "script": "plot-reuse/figure/dp/dp_two_stage_model.py",
+      "script": "data/dp_two_stage_model.py",
       "cmd": [
-        "plot-reuse/figure/dp/.venv/bin/python3",
-        "plot-reuse/figure/dp/dp_two_stage_model.py",
+        "data/.venv/bin/python3",
+        "data/dp_two_stage_model.py",
         "--csv",
-        "plot-reuse/figure/dp/dp.csv",
+        "data/dp_training.csv",
         "--group",
         "clk_mhz",
         "--cv-scope",

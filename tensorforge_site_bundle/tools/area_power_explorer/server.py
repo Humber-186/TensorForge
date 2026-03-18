@@ -138,7 +138,7 @@ def _api_ppa_data(db_path: Path) -> dict[str, list]:
 
 
 def _api_baseline_data() -> dict[str, list]:
-    rows = _load_csv_rows(ROOT / "plot-baseline" / "DPVSbaseline.csv")
+    rows = _load_csv_rows(ROOT / "data" / "baseline_comparison.csv")
     points = []
     for row in rows:
         try:
@@ -159,8 +159,8 @@ def _api_baseline_data() -> dict[str, list]:
 
 
 def _api_breakdown_data() -> dict[str, list]:
-    sm_rows = _load_csv_rows(ROOT / "plot-Ventus" / "sm_top_area.csv")
-    rolled_rows = _load_csv_rows(ROOT / "plot-Ventus" / "top_module_area_sum_rolled.csv")
+    sm_rows = _load_csv_rows(ROOT / "data" / "ventus_sm_top_area.csv")
+    rolled_rows = _load_csv_rows(ROOT / "data" / "ventus_top_module_area_sum_rolled.csv")
 
     def _norm(rows: list[dict[str, str]], label_key: str) -> list[dict[str, float | str]]:
         out = []

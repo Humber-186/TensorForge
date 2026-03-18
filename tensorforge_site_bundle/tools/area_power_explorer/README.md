@@ -43,17 +43,17 @@
 ## 3. 数据来源
 
 ### 主数据
-- `plot-result/dc_area_power.csv`
+- `data/area_power_measurements.csv`
 
 ### 基线/补充数据
-- `plot-baseline/DPVSbaseline.csv`
+- `data/baseline_comparison.csv`
 
 ### 预测模型数据
-- `plot-reuse/figure/dp/dp.csv`
+- `data/dp_training.csv`
 
 ### 预测模型脚本
-- `plot-reuse/figure/dp/dp_model.py`
-- `plot-reuse/figure/dp/dp_two_stage_model.py`
+- `data/dp_model.py`
+- `data/dp_two_stage_model.py`
 
 ---
 
@@ -128,7 +128,7 @@ python3 -m tools.area_power_explorer.main build --skip-predictions
 预测 artifacts 依赖已有 Python 环境：
 
 ```bash
-plot-reuse/figure/dp/.venv/bin/python3
+data/.venv/bin/python3
 ```
 
 当前优化后的模型生成策略：

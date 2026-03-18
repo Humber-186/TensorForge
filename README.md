@@ -5,14 +5,13 @@ TensorForge is a cleaned and publishable snapshot of RTL assets plus the bundled
 ## Repository Layout
 
 - `RTL/`
-  - `rtl_test/Array/`: array-level generated SystemVerilog
-  - `rtl_test/ComputeUnit/`: compute-unit generated SystemVerilog
-  - `rtl/`, `rtl-base-prec/`, `rtl-prec/`, `rtl-sr/`: additional RTL collections preserved from the local workspace
+  - `Array/`: flattened array-level RTL files
+  - `ComputeUnit/`: flattened compute-unit RTL files
 - `tensorforge_site_bundle/`
   - `tools/area_power_explorer/`: backend/build scripts
   - `web/area_power_explorer/`: bundled frontend
   - `artifacts/area_power_explorer/`: packaged DB/model artifacts
-  - `plot-result/`, `plot-baseline/`, `plot-Ventus/`, `plot-reuse/`: website-required source datasets
+  - `data/`: website-required source datasets
 
 ## Publishing Rules
 

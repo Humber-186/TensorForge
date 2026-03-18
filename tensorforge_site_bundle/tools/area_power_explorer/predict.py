@@ -8,9 +8,9 @@ import csv
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-DP_DIR = ROOT / "plot-reuse" / "figure" / "dp"
+DP_DIR = ROOT / "data"
 DP_VENV_PY = DP_DIR / ".venv" / "bin" / "python3"
-DP_CSV = DP_DIR / "dp.csv"
+DP_CSV = DP_DIR / "dp_training.csv"
 DP_UNIT_DESIGN_NAMES = {
     "DotProductWrapper",
     "DotProductFP4Wrapper",
