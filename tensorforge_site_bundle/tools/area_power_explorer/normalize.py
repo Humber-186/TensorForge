@@ -11,7 +11,7 @@ _MN_RE = re.compile(r"_m(\d+)_n(\d+)")
 _NORM_RE = re.compile(r"_norm([^_]+)")
 _ACC_RE = re.compile(r"_acc([^_]+)")
 _OUT_RE = re.compile(r"_out([^_]+)")
-_PRECISION_RE = re.compile(r"/([^/]+?)(?:_dimK\d+|$)")
+_PRECISION_RE = re.compile(r"(?:^|/)(?:DC_log_)?([^/_]+?)(?:_dimK\d+|$)")
 
 _DP_NAMES = {
     "DotProductWrapper",
@@ -114,9 +114,14 @@ def normalize_record(row: dict[str, Any], source_file: str) -> dict[str, Any]:
     acc_kind = _coalesce_text(row.get("acc_kind")) or (_extract(_ACC_RE, variant, report_dir) or "unknown")
     out_kind = _coalesce_text(row.get("out_kind")) or (_extract(_OUT_RE, variant, report_dir) or "unknown")
 
-    precision_name = _coalesce_text(row.get("precision_name"))
+    precision_name = _coalesce_text(row.get("precision_name"), row.get("prec"))
     if not precision_name:
-        precision_name = _extract(_PRECISION_RE, _coalesce_text(row.get("precision_set")), variant) or "unknown"
+        precision_name = _extract(
+            _PRECISION_RE,
+            _coalesce_text(row.get("precision_set")),
+            variant,
+            report_dir,
+        ) or "unknown"
 
     mx_flag, nv_flag, mx_raw = _parse_mx_nv(_coalesce_text(row.get("mx")), variant)
     design_name = _coalesce_text(row.get("design_name"))

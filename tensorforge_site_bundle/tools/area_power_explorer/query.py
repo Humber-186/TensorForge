@@ -9,6 +9,9 @@ from pathlib import Path
 from typing import Any
 
 
+NOT_FOUND_MESSAGE = "该组合不存在，且没有可用估计值 / No exact or estimated data found"
+
+
 class ExplorerQueryEngine:
     def __init__(self, db_path: Path):
         self.db_path = Path(db_path)
@@ -144,6 +147,20 @@ class ExplorerQueryEngine:
                     mx: bool, nv: bool, norm_kind: str, acc_kind: str, out_kind: str,
                     midmat: int, allow_predicted: bool = True) -> dict[str, Any]:
         tile_count = m * n
+        requested = {
+            "m": m,
+            "n": n,
+            "k": k,
+            "clk_mhz": clk_mhz,
+            "precision_name": precision_name,
+            "mx": mx,
+            "nv": nv,
+            "norm_kind": norm_kind,
+            "acc_kind": acc_kind,
+            "out_kind": out_kind,
+            "midmat": midmat,
+        }
+
         with self._connect() as con:
             row = self._find_measured_array(
                 con,
@@ -165,7 +182,9 @@ class ExplorerQueryEngine:
                 unit_area = array_area / tile_count if tile_count else 0.0
                 unit_power = array_power / tile_count if tile_count else 0.0
                 result_type = "measured_array"
+                exact_match_found = True
             else:
+                exact_match_found = False
                 unit = self._find_measured_unit(
                     con,
                     k=k,
@@ -178,7 +197,14 @@ class ExplorerQueryEngine:
                     out_kind=out_kind,
                     midmat=midmat,
                 )
-                if unit is None:
+                if unit is not None:
+                    unit_area = float(unit["area_um2"] or 0.0)
+                    unit_power = float(unit["power_total_mw"] or 0.0)
+                    array_area = tile_count * unit_area
+                    array_power = tile_count * unit_power
+                    result_type = "derived_measured_unit"
+                else:
+                    predicted = None
                     if allow_predicted:
                         predicted = self._find_predicted_unit(
                             k=k,
@@ -191,26 +217,33 @@ class ExplorerQueryEngine:
                             out_kind=out_kind,
                             midmat=midmat,
                         )
-                        if predicted is None:
-                            raise LookupError("No predicted data found")
+                    if predicted is not None:
                         unit_area = float(predicted["unit_area_um2"])
                         unit_power = float(predicted["unit_power_total_mw"])
                         array_area = tile_count * unit_area
                         array_power = tile_count * unit_power
                         result_type = "predicted_unit"
                     else:
-                        raise LookupError("No measured data found")
-                else:
-                    unit_area = float(unit["area_um2"] or 0.0)
-                    unit_power = float(unit["power_total_mw"] or 0.0)
-                    array_area = tile_count * unit_area
-                    array_power = tile_count * unit_power
-                    result_type = "derived_measured_unit"
+                        return {
+                            "status": "not_found",
+                            "result_type": "not_found",
+                            "exact_match_found": False,
+                            "estimate_available": False,
+                            "message": NOT_FOUND_MESSAGE,
+                            "tile_count": tile_count,
+                            "actual_k": k,
+                            "requested": requested,
+                            "allow_predicted": allow_predicted,
+                        }
 
         ops_per_cycle = 2 * m * n * k
         throughput_ops_per_sec = ops_per_cycle * clk_mhz * 1_000_000.0
         return {
+            "status": "exact" if exact_match_found else "estimated_only",
             "result_type": result_type,
+            "exact_match_found": exact_match_found,
+            "estimate_available": True,
+            "message": "精确结果存在 / Exact measured result found" if exact_match_found else "精确组合不存在，以下为估计值 / Exact match not found; showing estimate",
             "tile_count": tile_count,
             "actual_k": k,
             "unit_area_um2": unit_area,
@@ -222,4 +255,6 @@ class ExplorerQueryEngine:
             "throughput_ops_per_sec": throughput_ops_per_sec,
             "formula_area": self._format_formula("Array Area", m, n, unit_area, array_area, "um²"),
             "formula_power": self._format_formula("Array Power", m, n, unit_power, array_power, "mW"),
+            "requested": requested,
+            "allow_predicted": allow_predicted,
         }

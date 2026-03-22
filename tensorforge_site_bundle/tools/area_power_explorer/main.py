@@ -10,7 +10,8 @@ from .build_db import build_database
 from .predict import build_prediction_artifacts
 from .server import make_server
 
-DEFAULT_OUT_DIR = Path("artifacts") / "area_power_explorer"
+ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_OUT_DIR = ROOT / "artifacts" / "area_power_explorer"
 
 
 def _prediction_artifacts_exist(models_dir: Path) -> bool:

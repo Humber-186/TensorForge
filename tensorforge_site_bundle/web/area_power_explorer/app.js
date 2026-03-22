@@ -19,7 +19,19 @@ function setSelectOptions(select, values, defaultValue, formatter = (value) => (
 
 function renderCards(result) {
   const cards = document.getElementById('result-cards');
+  if (result.status === 'not_found') {
+    cards.innerHTML = `
+      <article class="card error-card">
+        <div class="label">(Query Status)</div>
+        <div class="value">${result.message}</div>
+      </article>
+    `;
+    document.getElementById('result-formulas').textContent = '(No exact or estimated result available)';
+    return;
+  }
+
   const rows = [
+    ['(Query Status)', result.message],
     ['(Result Type)', result.result_type],
     ['(Tile Count)', String(result.tile_count)],
     ['(Unit Area)', `${result.unit_area_um2.toFixed(6)} um²`],
