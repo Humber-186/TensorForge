@@ -22,6 +22,115 @@ Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions
 
 These gains are reported against prior multi-precision compute-unit designs and illustrate that TensorForge extends the area-power Pareto frontier rather than trading one objective for another.
 
+## Comparison with Previous Works
+
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2">Metric</th>
+      <th colspan="2">TVLSI'21</th>
+      <th colspan="2">GLSVLSI'23</th>
+      <th colspan="2">ITETC'24</th>
+      <th colspan="2">TCASAI'25</th>
+      <th colspan="2">TVLSI'25</th>
+      <th colspan="2">ASPDAC'25</th>
+      <th colspan="2"><strong>Ours</strong></th>
+    </tr>
+    <tr>
+      <th>Format</th><th>Value</th>
+      <th>Format</th><th>Value</th>
+      <th>Format</th><th>Value</th>
+      <th>Format</th><th>Value</th>
+      <th>Format</th><th>Value</th>
+      <th>Format</th><th>Value</th>
+      <th>Format</th><th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Technology</td>
+      <td colspan="2">22nm</td>
+      <td colspan="2">28nm</td>
+      <td colspan="2">12nm</td>
+      <td colspan="2">65nm</td>
+      <td colspan="2">28nm</td>
+      <td colspan="2">28nm</td>
+      <td colspan="2"><strong>22nm</strong></td>
+    </tr>
+    <tr>
+      <td>Freq. (GHz)</td>
+      <td colspan="2">0.92</td>
+      <td colspan="2">2.5</td>
+      <td colspan="2">1.26</td>
+      <td colspan="2">0.741</td>
+      <td colspan="2">0.4</td>
+      <td colspan="2">1.43</td>
+      <td colspan="2"><strong>1.41</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="3">TFLOPS/W</td>
+      <td>FP8</td><td>1.25</td>
+      <td>FP8</td><td>0.21</td>
+      <td>FP8</td><td>1.63</td>
+      <td>FP8</td><td>0.18</td>
+      <td>FP8</td><td>5.70</td>
+      <td>FP8</td><td>1.95</td>
+      <td><strong>FP8</strong></td><td><strong>10.76</strong></td>
+    </tr>
+    <tr>
+      <td>FP16</td><td>0.50</td>
+      <td>FP16</td><td>0.21</td>
+      <td>FP16</td><td>0.82</td>
+      <td>FP16</td><td>0.09</td>
+      <td>BF16</td><td>2.47</td>
+      <td>FP12</td><td>0.87</td>
+      <td><strong>FP16</strong></td><td><strong>5.37</strong></td>
+    </tr>
+    <tr>
+      <td>BF16</td><td>0.58</td>
+      <td>INT8</td><td>0.41</td>
+      <td>-</td><td>-</td>
+      <td>BF16</td><td>0.09</td>
+      <td>INT8</td><td>7.58</td>
+      <td>FP4</td><td>5.93</td>
+      <td><strong>FP4</strong></td><td><strong>21.53</strong></td>
+    </tr>
+    <tr>
+      <td rowspan="3">TFLOPS/mm²</td>
+      <td>FP8</td><td>0.30</td>
+      <td>FP8</td><td>1.01</td>
+      <td>FP8</td><td>1.06</td>
+      <td>FP8</td><td>0.14</td>
+      <td>FP8</td><td>0.49</td>
+      <td>FP8</td><td>1.25</td>
+      <td><strong>FP8</strong></td><td><strong>3.66</strong></td>
+    </tr>
+    <tr>
+      <td>FP16</td><td>0.15</td>
+      <td>FP16</td><td>1.01</td>
+      <td>FP16</td><td>0.53</td>
+      <td>FP16</td><td>0.07</td>
+      <td>BF16</td><td>0.12</td>
+      <td>FP12</td><td>0.42</td>
+      <td><strong>FP16</strong></td><td><strong>1.83</strong></td>
+    </tr>
+    <tr>
+      <td>BF16</td><td>0.15</td>
+      <td>INT8</td><td>2.03</td>
+      <td>-</td><td>-</td>
+      <td>BF16</td><td>0.07</td>
+      <td>INT8</td><td>0.12</td>
+      <td>FP4</td><td>4.99</td>
+      <td><strong>FP4</strong></td><td><strong>7.31</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+## Pareto Comparison Figure
+
+![TensorForge area-versus-energy comparison](img/area_vs_energy_tensorforge_only_22nm_scaled_better_arrow.png)
+
+
 ## Released Artifact
 
 This repository is organized as a paper artifact rather than a software-only code drop. It releases the following components:
