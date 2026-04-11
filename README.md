@@ -1,6 +1,5 @@
 # TensorForge: Synthesis-Backed Design Space Exploration of Multi-Precision Tensor Core Microarchitectures
 
-[Project website and released synthesis results](https://anonymous.4open.science/r/TensorForge/)
 
 ## Abstract
 
@@ -134,9 +133,4 @@ Beyond raw RTL and synthesis outputs, TensorForge releases **actionable design r
 
 In other words, the repository is intended not only to reproduce numbers, but also to help researchers and hardware designers reuse the lessons behind those numbers.
 
-## Availability
-
-The public artifact page, released data, and project bundle are available at:
-
-- https://anonymous.4open.science/r/TensorForge/
 
