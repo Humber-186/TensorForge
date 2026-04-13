@@ -195,46 +195,142 @@ Together, these pages provide both query-oriented inspection and global visual a
 
 ## Open Cost Model
 
-TensorForge releases the cost model used to support estimate-backed exploration on the website.
+TensorForge releases the cost models used to support estimate-backed exploration on the website.
 
-### Feature generation
+### Released models
 
-The model derives features from the underlying precision-sharing strategy rather than from a flat label alone. The released feature set captures architectural signals such as:
+The current packaged model artifacts contain two trained predictors:
 
-- whether floating-point or integer accumulation resources are present,
-- total mantissa capacity and mantissa grouping structure,
-- exponent grouping structure,
-- normalization/alignment behavior,
-- LUT-oriented FP4 handling,
-- and interaction terms tied to `dimK`.
+1. `dp_model_by_clk`
+   - Script: `dp_model.py`
+   - Type: single-stage linear model for `area_value` and `total_value`
+   - Best configuration: `log_target=true`
+   - Grouping key: `clk_mhz`
+   - Cross-validation: 5-fold
+2. `dp_two_stage_reuse_by_clk`
+   - Script: `dp_two_stage_model.py`
+   - Type: two-stage reuse model
+     - Stage-A estimates single-mode area and power
+     - Stage-B estimates reuse ratio
+   - Grouping key: `clk_mhz`
+   - Scope: `reuse`
+   - Cross-validation: 7-fold
 
-This makes the model interpretable at the microarchitecture level: its inputs correspond to concrete resource-sharing decisions rather than purely symbolic configuration names.
+### Dataset scale
 
-### Model form
+According to `prediction_manifest.json`, the released training set contains 560 samples:
 
-TensorForge fits **ridge-regression** surrogates with **log-linear** targets for both area and total power:
+- `DotProductWrapper`: 420
+- `DotProductINT8INT4Wrapper`: 70
+- `DotProductINT8INT4ReuseWrapper`: 35
+- `DotProductFP4Wrapper`: 35
 
-- `ln(area) = b0 + Σ bi·fi`, with `area = exp(ln(area))`
-- `ln(total power) = c0 + Σ ci·fi`, with `total power = exp(ln(total power))`
+### Feature set
 
-This formulation provides a compact, transparent approximation layer for rapid exploration while remaining grounded in synthesis data.
+`dp_features.csv` contains 29 columns. The core model inputs include:
+
+- Structure/configuration features:
+  - `clk_mhz`
+  - `precision_set`
+  - `dimK`
+  - `mx`
+  - `out_kind`
+  - `midMat`
+- Targets:
+  - `area_value`
+  - `total_value`
+- Engineered features:
+  - `lut_fp4`
+  - `fp_format_count`
+  - `int_format_count`
+  - `total_format_count`
+  - `fp_mantissa_bits_total`
+  - `fp_exponent_groups`
+  - `fp_mantissa_groups`
+  - `int_bits_total`
+  - `has_fp_acc`
+  - `has_int_acc`
+  - `has_norm_align`
+  - `has_adder_tree`
+  - `has_mx_scale`
+  - `log2_dimK`
+  - `fp_mantissa_bits_x_dimK`
+  - `int_bits_x_dimK`
+  - `fp_format_count_x_dimK`
+  - `int_format_count_x_dimK`
+
+### Interpretable signals captured by the models
+
+From `dp_model_formula_by_clk.txt`, the single-stage model is most influenced by:
+
+- Area (`area_value`):
+  - `has_int_acc`
+  - `midMat_26`
+  - `midMat_9`
+  - `lut_fp4`
+  - `log2_dimK`
+  - `out_kind_INT32`
+  - `has_norm_align`
+  - `has_fp_acc`
+- Power (`total_value`):
+  - `lut_fp4`
+  - `out_kind_INT32`
+  - `has_norm_align`
+  - `has_fp_acc`
+  - `int_format_count`
+  - `midMat_26`
+  - `log2_dimK`
+  - `total_format_count`
+
+From `dp_two_stage_formula_reuse_by_clk.txt`, the two-stage reuse model is dominated by:
+
+- Stage-A:
+  - `log2_dimK`
+  - `mode_INT4`
+  - `mode_MXFP4LUT`
+  - `midMat_9`
+  - `mx_noMXnoNV`
+  - `norm_kind_FP32`
+  - `acc_kind_INT32`
+  - `out_kind_INT32`
+  - `clk_mhz`
+- Stage-B:
+  - `log2_dimK`
+  - `P_ded_std`
+  - `share_mul`
+  - `share_exp`
+  - `share_norm_align`
+  - `share_fp_acc`
+  - `P_ded_hat`
+  - `A_ded_hat`
+  - `A_dom_frac`
+  - `P_dom_frac`
+  - `n_modes_unique`
+  - `mux_inputs`
 
 ### Predictive performance
 
-The released model reports the following evaluation results:
+The current TensorForge website bundle contains two model families with the following best reported results:
 
-| Validation Scope | Target | R² | MAPE |
-| --- | --- | ---: | ---: |
-| Leave-one-clock | Area | 0.9543 | 7.88% |
-| Leave-one-clock | Total power | 0.9620 | 7.58% |
-| Leave-one-configuration | Area | 0.8687 | 18.56% |
-| Leave-one-configuration | Total power | 0.7607 | 18.73% |
+| Model | Target | Validation | Mean R² | Mean MAPE |
+| --- | --- | --- | ---: | ---: |
+| `dp_model_by_clk` | Area | 5-fold grouped by `clk_mhz` | 0.9536 | 7.89% |
+| `dp_model_by_clk` | Power (`total_value`) | 5-fold grouped by `clk_mhz` | 0.9620 | 7.59% |
+| `dp_two_stage_reuse_by_clk` | Area | 7-fold reuse CV | 0.9930 | 3.45% |
+| `dp_two_stage_reuse_by_clk` | Power | 7-fold reuse CV | 0.9965 | 2.55% |
 
-These results show that the surrogate is strong for interpolation across clocks and still informative under stricter held-out configuration evaluation.
+Additional notes:
+
+- The single-stage model `dp_model_by_clk` does **not** achieve `MAPE < 4%`.
+- The only released model that reaches `MAPE < 4%` is `dp_two_stage_reuse_by_clk`.
+- Best single-fold reuse results are:
+  - Area MAPE: 3.18%
+  - Power MAPE: 2.41%
+- The best overall reported result in the current site bundle is power prediction from `dp_two_stage_reuse_by_clk`, with mean MAPE = 2.55%.
 
 ### Role in the website
 
-When a queried design point does not have a directly released measurement, the explorer can use the open cost model to render **estimate-backed results** instead of returning an empty view. This enables fast what-if inspection without hiding which outputs are measured and which are predicted.
+When a queried design point does not have a directly released measurement, the explorer can use the released cost models to render **estimate-backed results** instead of returning an empty view. This enables fast what-if inspection while making the modeling assumptions, feature set, and expected accuracy explicit.
 
 ## Open Design Rules
 
