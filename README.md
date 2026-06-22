@@ -3,7 +3,7 @@
 
 ## Abstract
 
-Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions under tight bandwidth, power, and area budgets remains a major microarchitecture challenge. We present **TensorForge**, a synthesis-backed framework for exploring multi-precision tensor core microarchitectures. TensorForge exposes compute-unit organization, precision configuration, and resource sharing as architectural knobs, generates synthesizable RTL for systematic comparison, and derives actionable design rules from over 600 configurations. We further demonstrate practical deployability by integrating TensorForge-generated designs into an open-source GPGPU. Compared with prior multi-precision compute-unit designs, a TensorForge-generated design point improves area efficiency by **1.77×** and energy efficiency by **1.49×** for FP8, and by **1.35×** and **3.04×** for FP4, while extending the area-power Pareto frontier.
+Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions under tight bandwidth, power, and area budgets remains a major microarchitecture challenge. We present **TensorForge**, a synthesis-backed framework for exploring multi-precision tensor core microarchitectures. TensorForge exposes compute-unit organization, precision configuration, and resource sharing as architectural knobs, generates synthesizable RTL for systematic comparison, and derives actionable design rules from over 600 configurations. We further demonstrate practical deployability by integrating TensorForge-generated designs into an open-source GPGPU. Under the updated rebuttal comparison, the clock-gated TensorForge point is evaluated at 22 nm, 0.9 V, and 1.41 GHz. Before node normalization, it improves over the strongest prior point by **2.90× area / 1.55× energy efficiency** for FP8, **1.79× / 1.79×** for FP16/BF16, and **2.90× / 5.96×** for FP4. After DeepScaleTool-based normalization to 22 nm, the gains remain **1.68× / 1.23×**, **1.04× / 1.42×**, and **1.69× / 4.73×**, respectively, while extending the area-power Pareto frontier.
 
 ## Highlights
 
@@ -12,15 +12,17 @@ Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions
 - **Large design sweep.** The released results cover **600+** synthesized configurations.
 - **System-level deployability.** TensorForge-generated designs are demonstrated inside an open-source GPGPU stack.
 - **Open artifact bundle.** The release includes RTL, a local area/power explorer website, synthesis-backed data, an open cost model, and extracted design rules.
+- **Rebuttal update data.** The `tensorforge_site_bundle/data/rebuttal_2026/` directory contains the new clock-gated FP4/LUT-FP4 data, clock-gated Pareto points, and retrained surrogate metrics used in the rebuttal.
 
 ## Main Result Snapshot
 
 | Precision | Area Efficiency Gain | Energy Efficiency Gain |
 | --- | ---: | ---: |
-| FP8 | 1.77× | 1.49× |
-| FP4 | 1.35× | 3.04× |
+| FP8 | 2.90× raw / 1.68× normalized | 1.55× raw / 1.23× normalized |
+| FP16/BF16 | 1.79× raw / 1.04× normalized | 1.79× raw / 1.42× normalized |
+| FP4 | 2.90× raw / 1.69× normalized | 5.96× raw / 4.73× normalized |
 
-These gains are reported against prior multi-precision compute-unit designs and illustrate that TensorForge extends the area-power Pareto frontier rather than trading one objective for another.
+These gains use the updated clock-gated 22 nm TensorForge point and a conservative best-prior-per-metric comparison. The normalized values use documented DeepScaleTool-derived node factors; same-flow TensorForge design rules remain based on synthesis data from the same flow.
 
 ## Comparison with Previous Works
 
@@ -75,7 +77,7 @@ These gains are reported against prior multi-precision compute-unit designs and 
       <td>FP8</td><td>0.18</td>
       <td>FP8</td><td>5.70</td>
       <td>FP8</td><td>1.95</td>
-      <td><strong>FP8</strong></td><td><strong>10.76</strong></td>
+      <td><strong>FP8</strong></td><td><strong>8.84</strong></td>
     </tr>
     <tr>
       <td>FP16</td><td>0.50</td>
@@ -84,7 +86,7 @@ These gains are reported against prior multi-precision compute-unit designs and 
       <td>FP16</td><td>0.09</td>
       <td>BF16</td><td>2.47</td>
       <td>FP12</td><td>0.87</td>
-      <td><strong>FP16</strong></td><td><strong>5.37</strong></td>
+      <td><strong>FP16/BF16</strong></td><td><strong>4.42</strong></td>
     </tr>
     <tr>
       <td>BF16</td><td>0.58</td>
@@ -93,7 +95,7 @@ These gains are reported against prior multi-precision compute-unit designs and 
       <td>BF16</td><td>0.09</td>
       <td>INT8</td><td>7.58</td>
       <td>FP4</td><td>5.93</td>
-      <td><strong>FP4</strong></td><td><strong>21.53</strong></td>
+      <td><strong>FP4</strong></td><td><strong>35.35</strong></td>
     </tr>
     <tr>
       <td rowspan="3">TFLOPS/mm²</td>
@@ -103,7 +105,7 @@ These gains are reported against prior multi-precision compute-unit designs and 
       <td>FP8</td><td>0.14</td>
       <td>FP8</td><td>0.49</td>
       <td>FP8</td><td>1.25</td>
-      <td><strong>FP8</strong></td><td><strong>3.66</strong></td>
+      <td><strong>FP8</strong></td><td><strong>3.62</strong></td>
     </tr>
     <tr>
       <td>FP16</td><td>0.15</td>
@@ -112,7 +114,7 @@ These gains are reported against prior multi-precision compute-unit designs and 
       <td>FP16</td><td>0.07</td>
       <td>BF16</td><td>0.12</td>
       <td>FP12</td><td>0.42</td>
-      <td><strong>FP16</strong></td><td><strong>1.83</strong></td>
+      <td><strong>FP16/BF16</strong></td><td><strong>1.81</strong></td>
     </tr>
     <tr>
       <td>BF16</td><td>0.15</td>
@@ -121,7 +123,7 @@ These gains are reported against prior multi-precision compute-unit designs and 
       <td>BF16</td><td>0.07</td>
       <td>INT8</td><td>0.12</td>
       <td>FP4</td><td>4.99</td>
-      <td><strong>FP4</strong></td><td><strong>7.31</strong></td>
+      <td><strong>FP4</strong></td><td><strong>14.48</strong></td>
     </tr>
   </tbody>
 </table>
@@ -316,17 +318,14 @@ The current TensorForge website bundle contains two model families with the foll
 | --- | --- | --- | ---: | ---: |
 | `dp_model_by_clk` | Area | 5-fold grouped by `clk_mhz` | 0.9536 | 7.89% |
 | `dp_model_by_clk` | Power (`total_value`) | 5-fold grouped by `clk_mhz` | 0.9620 | 7.59% |
-| `dp_two_stage_reuse_by_clk` | Area | 7-fold reuse CV | 0.9930 | 3.45% |
-| `dp_two_stage_reuse_by_clk` | Power | 7-fold reuse CV | 0.9965 | 2.55% |
+| `dp_two_stage_reuse_by_clk` | Area | 7-fold grouped CV, retrained 2026-06-21 | 0.9859 | 8.08% |
+| `dp_two_stage_reuse_by_clk` | Power | 7-fold grouped CV, retrained 2026-06-21 | 0.9726 | 7.34% |
 
 Additional notes:
 
-- The single-stage model `dp_model_by_clk` does **not** achieve `MAPE < 4%`.
-- The only released model that reaches `MAPE < 4%` is `dp_two_stage_reuse_by_clk`.
-- Best single-fold reuse results are:
-  - Area MAPE: 3.18%
-  - Power MAPE: 2.41%
-- The best overall reported result in the current site bundle is power prediction from `dp_two_stage_reuse_by_clk`, with mean MAPE = 2.55%.
+- The retrained two-stage model uses 560 synthesized dot-product samples and reports the stricter 7-fold cross-validation used in the rebuttal artifact.
+- The surrogate is used for explanation and future pruning only; all reported PPA points, Pareto fronts, and design rules remain synthesis-backed.
+- The single-stage model `dp_model_by_clk` is retained as an older baseline model for the website bundle.
 
 ### Role in the website
 
