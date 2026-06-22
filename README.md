@@ -12,7 +12,7 @@ Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions
 - **Large design sweep.** The released results cover **600+** synthesized configurations.
 - **System-level deployability.** TensorForge-generated designs are demonstrated inside an open-source GPGPU stack.
 - **Open artifact bundle.** The release includes RTL, a local area/power explorer website, synthesis-backed data, an open cost model, and extracted design rules.
-- **Rebuttal update data.** The `tensorforge_site_bundle/data/rebuttal_2026/` directory contains the new clock-gated FP4/LUT-FP4 data, clock-gated Pareto points, and retrained surrogate metrics used in the rebuttal.
+- **Rebuttal update data.** The full 4,445-point clock-gated synthesis dataset is also available as `tensorforge_site_bundle/data/clock_gated_area_power_measurements.csv` in the same CSV schema as the original measurements; `tensorforge_site_bundle/data/rebuttal_2026/` additionally contains FP4/LUT-FP4 summaries, clock-gated Pareto points, and retrained surrogate metrics used in the rebuttal.
 
 ## Main Result Snapshot
 

@@ -2,6 +2,8 @@
 
 This directory contains data added for the ICCAD 2026 rebuttal update.
 
+- `clock_gated_area_power_measurements.csv`: full 4,445-point clock-gated synthesis dataset converted to the same 24-column schema as `data/area_power_measurements.csv`; DAC array names are normalized to the existing `InnerProductArray`/`OuterProductArray` labels, and dynamic power is reported in mW for schema consistency.
+
 - `fp4_lutfp4_clock_gated_1410.csv`: 1.41 GHz clock-gated FP4 arithmetic vs. LUT-FP4 comparison.
 - `clock_gated_pareto_1410_points.csv`: clock-gated 1.41 GHz Pareto candidate points.
 - `clock_gated_pareto_1410_front.csv`: clock-gated 1.41 GHz Pareto-front points.
