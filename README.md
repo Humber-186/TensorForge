@@ -1,9 +1,9 @@
 # TensorForge: Synthesis-Backed Design Space Exploration of Multi-Precision Tensor Core Microarchitectures
 
 
-## Abstract
+## Overview
 
-Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions under tight bandwidth, power, and area budgets remains a major microarchitecture challenge. We present **TensorForge**, a synthesis-backed framework for exploring multi-precision tensor core microarchitectures. TensorForge exposes compute-unit organization, precision configuration, and resource sharing as architectural knobs, generates synthesizable RTL for systematic comparison, and derives actionable design rules from over 600 configurations. We further demonstrate practical deployability by integrating TensorForge-generated designs into an open-source GPGPU. Under the updated rebuttal comparison, the clock-gated TensorForge point is evaluated at 22 nm, 0.9 V, and 1.41 GHz. Before node normalization, it improves over the strongest prior point by **2.90× area / 1.55× energy efficiency** for FP8, **1.79× / 1.79×** for FP16/BF16, and **2.90× / 5.96×** for FP4. After DeepScaleTool-based normalization to 22 nm, the gains remain **1.68× / 1.23×**, **1.04× / 1.42×**, and **1.69× / 4.73×**, respectively, while extending the area-power Pareto frontier.
+Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions under tight bandwidth, power, and area budgets remains a major microarchitecture challenge. **TensorForge** is a synthesis-backed framework for exploring multi-precision tensor core microarchitectures. TensorForge exposes compute-unit organization, precision configuration, and resource sharing as architectural knobs, generates synthesizable RTL for systematic comparison, and derives actionable design rules from over 600 configurations. The release also demonstrates practical deployability by integrating TensorForge-generated designs into an open-source GPGPU. Using the released clock-gated TensorForge comparison point at 22 nm, 0.9 V, and 1.41 GHz, TensorForge improves over the strongest prior point before node normalization by **2.90× area / 1.55× energy efficiency** for FP8, **1.79× / 1.79×** for FP16/BF16, and **2.90× / 5.96×** for FP4. After DeepScaleTool-based normalization to 22 nm, the gains remain **1.68× / 1.23×**, **1.04× / 1.42×**, and **1.69× / 4.73×**, respectively, while extending the area-power Pareto frontier.
 
 ## Highlights
 
@@ -11,8 +11,8 @@ Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions
 - **Multi-precision design knobs.** The framework exposes compute-unit organization, precision support, and resource-sharing policies as first-class parameters.
 - **Large design sweep.** The released results cover **600+** synthesized configurations.
 - **System-level deployability.** TensorForge-generated designs are demonstrated inside an open-source GPGPU stack.
-- **Open artifact bundle.** The release includes RTL, a local area/power explorer website, synthesis-backed data, an open cost model, and extracted design rules.
-- **Rebuttal update data.** The full 4,445-point clock-gated synthesis dataset is also available as `tensorforge_site_bundle/data/clock_gated_area_power_measurements.csv` in the same CSV schema as the original measurements; `tensorforge_site_bundle/data/rebuttal_2026/` additionally contains FP4/LUT-FP4 summaries, clock-gated Pareto points, and retrained surrogate metrics used in the rebuttal.
+- **Open release bundle.** The release includes RTL, a local area/power explorer website, synthesis-backed data, an open cost model, and extracted design rules.
+- **Clock-gated update data.** The full 4,445-point clock-gated synthesis dataset is available as `tensorforge_site_bundle/data/clock_gated_area_power_measurements.csv` in the same CSV schema as the original measurements; `tensorforge_site_bundle/data/clock_gated_updates_2026/` contains FP4/LUT-FP4 summaries, clock-gated Pareto points, and retrained surrogate metrics.
 
 ## Main Result Snapshot
 
@@ -24,7 +24,7 @@ Tensor cores drive most AI compute in GPGPUs, yet supporting multiple precisions
 
 These gains use the updated clock-gated 22 nm TensorForge point and a conservative best-prior-per-metric comparison. The normalized values use documented DeepScaleTool-derived node factors; same-flow TensorForge design rules remain based on synthesis data from the same flow.
 
-## Comparison with Previous Works
+## Comparison with Published Designs
 
 <table>
   <thead>
@@ -36,7 +36,7 @@ These gains use the updated clock-gated 22 nm TensorForge point and a conservati
       <th colspan="2">TCASAI'25</th>
       <th colspan="2">TVLSI'25</th>
       <th colspan="2">ASPDAC'25</th>
-      <th colspan="2"><strong>Ours</strong></th>
+      <th colspan="2"><strong>TensorForge</strong></th>
     </tr>
     <tr>
       <th>Format</th><th>Value</th>
@@ -130,7 +130,7 @@ These gains use the updated clock-gated 22 nm TensorForge point and a conservati
 
 ## Pareto Comparison Figure
 
-Raw cross-paper area/energy comparison:
+Raw reported area/energy comparison:
 
 ![Raw area-versus-energy comparison](img/area_efficiency_raw.png)
 
@@ -139,9 +139,9 @@ DeepScaleTool-normalized 22 nm area/energy comparison:
 ![22 nm normalized area-versus-energy comparison](img/area_efficiency_22nm_normalized.png)
 
 
-## Released Artifact
+## Repository Contents
 
-This repository is organized as a paper artifact rather than a software-only code drop. It releases the following components:
+This repository is organized as an open research artifact and public RTL/data release. It provides the following components:
 
 - **Synthesizable tensor-core RTL** for systematic microarchitectural comparison.
 - **A local website** for querying measured and estimate-backed area/power results.
@@ -329,7 +329,7 @@ The current TensorForge website bundle contains two model families with the foll
 
 Additional notes:
 
-- The retrained two-stage model uses 560 synthesized dot-product samples and reports the stricter 7-fold cross-validation used in the rebuttal artifact.
+- The retrained two-stage model uses 560 synthesized dot-product samples and reports the stricter 7-fold cross-validation results.
 - The surrogate is used for explanation and future pruning only; all reported PPA points, Pareto fronts, and design rules remain synthesis-backed.
 - The single-stage model `dp_model_by_clk` is retained as an older baseline model for the website bundle.
 

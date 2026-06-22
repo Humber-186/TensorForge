@@ -1,8 +1,8 @@
-# Rebuttal 2026 Updated Data
+# TensorForge 2026 Clock-Gated Update Data
 
-This directory contains data added for the ICCAD 2026 rebuttal update.
+This directory contains public update data for the TensorForge 2026 clock-gated synthesis release.
 
-- `clock_gated_area_power_measurements.csv`: full 4,445-point clock-gated synthesis dataset converted to the same 24-column schema as `data/area_power_measurements.csv`; DAC array names are normalized to the existing `InnerProductArray`/`OuterProductArray` labels, dynamic power is reported in mW for schema consistency, and `report_dir` values are public-safe relative paths.
+- `clock_gated_area_power_measurements.csv`: full 4,445-point clock-gated synthesis dataset converted to the same 24-column schema as `data/area_power_measurements.csv`; DAC array names are normalized to the existing `InnerProductArray`/`OuterProductArray` labels, dynamic power is reported in mW for schema consistency, and `report_dir` values are portable relative paths.
 
 - `fp4_lutfp4_clock_gated_1410.csv`: 1.41 GHz clock-gated FP4 arithmetic vs. LUT-FP4 comparison.
 - `clock_gated_pareto_1410_points.csv`: clock-gated 1.41 GHz Pareto candidate points.
