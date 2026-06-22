@@ -130,7 +130,13 @@ These gains use the updated clock-gated 22 nm TensorForge point and a conservati
 
 ## Pareto Comparison Figure
 
-![TensorForge area-versus-energy comparison](img/area_vs_energy_tensorforge_only_22nm_scaled_better_arrow.png)
+Raw cross-paper area/energy comparison:
+
+![Raw area-versus-energy comparison](img/area_efficiency_raw.png)
+
+DeepScaleTool-normalized 22 nm area/energy comparison:
+
+![22 nm normalized area-versus-energy comparison](img/area_efficiency_22nm_normalized.png)
 
 
 ## Released Artifact
