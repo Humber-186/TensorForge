@@ -28,9 +28,23 @@ def iter_csv_rows(path: Path) -> Iterable[dict[str, str]]:
             yield cleaned
 
 
-def load_canonical_rows(paths: list[Path]) -> list[dict[str, Any]]:
+def _source_file_label(path: Path, source_root: Path | None) -> str:
+    if source_root is None:
+        return path.as_posix()
+    try:
+        return path.resolve().relative_to(source_root.resolve()).as_posix()
+    except ValueError:
+        raise ValueError(f"source path is outside source_root: {path}") from None
+
+
+def load_canonical_rows(
+    paths: list[Path],
+    *,
+    source_root: Path | None = None,
+) -> list[dict[str, Any]]:
     canonical_rows: list[dict[str, Any]] = []
     for path in paths:
+        source_file = _source_file_label(path, source_root)
         for row in iter_csv_rows(path):
-            canonical_rows.append(normalize_record(row, source_file=str(path)))
+            canonical_rows.append(normalize_record(row, source_file=source_file))
     return canonical_rows

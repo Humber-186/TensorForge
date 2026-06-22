@@ -93,11 +93,17 @@ def _row_values(row, field_names):
     return values
 
 
-def build_database(db_path: Path) -> Path:
+def build_database(
+    db_path: Path,
+    *,
+    source_paths: list[Path] | None = None,
+    source_root: Path | None = ROOT,
+) -> Path:
     db_path = Path(db_path)
     db_path.parent.mkdir(parents=True, exist_ok=True)
 
-    rows = load_canonical_rows(DEFAULT_SOURCES)
+    paths = DEFAULT_SOURCES if source_paths is None else source_paths
+    rows = load_canonical_rows(paths, source_root=source_root)
     con = sqlite3.connect(db_path)
     try:
         con.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
