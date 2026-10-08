@@ -1,5 +1,6 @@
 {
   "source_csv": "data/dp_training.csv",
+  "measurement_source_csv": "data/clock_gated_area_power_measurements.csv",
   "python": "data/.venv/bin/python3",
   "training_summary": {
     "source_csv": "data/dp_training.csv",

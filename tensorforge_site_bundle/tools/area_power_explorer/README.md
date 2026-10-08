@@ -54,6 +54,8 @@
 ### 预测模型数据
 - `data/dp_training.csv`
 
+该训练集是最新版时钟门控主数据中的 560 个 dot-product 样本子集；构建预测产物前会校验每条训练记录与主数据一致。
+
 ### 预测模型脚本
 - `data/dp_model.py`
 - `data/dp_two_stage_model.py`
