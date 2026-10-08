@@ -10,7 +10,7 @@ from .ingest import load_canonical_rows
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_PATH = Path(__file__).with_name("schema.sql")
 DEFAULT_SOURCES = [
-    ROOT / "data" / "area_power_measurements.csv",
+    ROOT / "data" / "clock_gated_area_power_measurements.csv",
     ROOT / "data" / "baseline_comparison.csv",
 ]
 

@@ -3,14 +3,23 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tensorforge_site_bundle.tools.area_power_explorer.build_db import build_database
+from tensorforge_site_bundle.tools.area_power_explorer.build_db import (
+    DEFAULT_SOURCES,
+    build_database,
+)
 
 
 BUNDLE_ROOT = Path('tensorforge_site_bundle').resolve()
 AREA_POWER_CSV = BUNDLE_ROOT / 'data' / 'area_power_measurements.csv'
+CLOCK_GATED_CSV = BUNDLE_ROOT / 'data' / 'clock_gated_area_power_measurements.csv'
+BASELINE_CSV = BUNDLE_ROOT / 'data' / 'baseline_comparison.csv'
 
 
 class BuildDatabaseTests(unittest.TestCase):
+    def test_default_sources_use_clock_gated_measurements(self):
+        self.assertEqual(DEFAULT_SOURCES, [CLOCK_GATED_CSV, BASELINE_CSV])
+        self.assertNotIn(AREA_POWER_CSV, DEFAULT_SOURCES)
+
     def test_source_file_labels_are_public_relative_paths(self):
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / 'area_power.db'

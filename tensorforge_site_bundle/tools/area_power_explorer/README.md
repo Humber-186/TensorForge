@@ -43,7 +43,10 @@
 ## 3. 数据来源
 
 ### 主数据
-- `data/area_power_measurements.csv`
+- `data/clock_gated_area_power_measurements.csv`
+
+网站默认使用论文中的最新版时钟门控数据；`data/area_power_measurements.csv`
+仅保留为历史数据，不参与默认数据库构建。
 
 ### 基线/补充数据
 - `data/baseline_comparison.csv`
