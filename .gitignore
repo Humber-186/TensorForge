@@ -12,3 +12,7 @@
 # Python cache
 **/__pycache__/
 /.worktrees/
+
+# Generated website; source and offline prediction artifacts remain versioned
+/tensorforge_site_bundle/artifacts/area_power_explorer/site/
+/_site/

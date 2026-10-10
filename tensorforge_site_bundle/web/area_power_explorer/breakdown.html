@@ -3,33 +3,39 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TensorForge Breakdown</title>
-    <link rel="stylesheet" href="/styles.css">
+    <meta name="color-scheme" content="light dark">
+    <title>TensorForge Area Breakdown</title>
+    <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body data-page="breakdown">
     <main class="layout">
-      <nav class="top-nav">
-        <a href="/index.html">Query</a>
-        <a href="/ppa.html">PPA Explorer</a>
-        <a href="/baseline.html">Baseline Compare</a>
-        <a href="/breakdown.html">Breakdown</a>
-      </nav>
+      <header class="site-header">
+        <nav class="top-nav" aria-label="TensorForge">
+          <a href="./index.html"><span data-i18n="nav.query">Query</span></a>
+          <a href="./ppa.html"><span data-i18n="nav.ppa">PPA Explorer</span></a>
+          <a href="./baseline.html"><span data-i18n="nav.baseline">Baseline Compare</span></a>
+          <a href="./breakdown.html"><span data-i18n="nav.breakdown">Area Breakdown</span></a>
+        </nav>
+        <button type="button" id="language-toggle" class="language-toggle" data-i18n="language.switch">简体中文</button>
+      </header>
       <section class="hero">
-        <h1>TensorForge Breakdown</h1>
-        <p>Interactive donut charts for top-level and rolled component area breakdowns derived from Ventus-related CSV reports.</p>
+        <div class="section-heading"><h1 data-i18n="page.breakdown.title">TensorForge Area Breakdown</h1><span class="help"><button type="button" class="help-button" data-help-label="nav.breakdown" aria-label="Explanation" aria-describedby="tip-breakdown-breakdown">i</button><span id="tip-breakdown-breakdown" class="tooltip" role="tooltip" data-i18n="help.breakdown">Each slice is a module’s share of the total area in the selected report. These reports describe Ventus modules, rather than a new tensor-core query.</span></span></div>
+        <p data-i18n="hero.breakdown">Inspect the module area shares in the released Ventus synthesis reports.</p>
+        <p class="hero-note"><span data-i18n="synthesis">Synthesis conditions: </span><strong>Design Compiler · TSMC 22nm</strong></p>
       </section>
       <section class="panel filters">
-        <h2>Breakdown View</h2>
+        <h2 data-i18n="breakdown.view">Report</h2>
         <form id="breakdown-filter-form" class="chart-filter-form">
-          <label>Dataset <select id="breakdown-series"></select></label>
+          <div class="field"><div class="field-label"><label data-i18n="breakdown.dataset" for="breakdown-series">Dataset</label></div><select id="breakdown-series"></select></div>
         </form>
       </section>
       <section class="panel chart-panel">
-        <h2>Area Breakdown</h2>
-        <svg id="breakdown-chart" class="chart-svg" viewBox="0 0 960 520"></svg>
-        <div id="breakdown-detail" class="detail-box">(Hover donut slices to inspect module area share.)</div>
+        <h2 data-i18n="breakdown.chart">Area share</h2>
+        <svg id="breakdown-chart" class="chart-svg" viewBox="0 0 960 520" role="img" aria-labelledby="breakdown-detail"></svg>
+        <div data-i18n="breakdown.hint" id="breakdown-detail" class="detail-box">Hover or tap a slice or legend to inspect the module area and percentage.</div>
       </section>
+      <footer><span>TensorForge</span><a href="https://github.com/liuweibupt/TensorForge" data-i18n="footer.repo">Source repository</a></footer>
     </main>
-    <script src="/charts.js"></script>
+    <script type="module" src="./charts.js"></script>
   </body>
 </html>

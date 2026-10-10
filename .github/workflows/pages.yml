@@ -1,0 +1,68 @@
+name: Website checks and GitHub Pages
+
+"on":
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/pages.yml"
+      - "tensorforge_site_bundle/**"
+      - "tests/area_power_explorer/**"
+  pull_request:
+    paths:
+      - ".github/workflows/pages.yml"
+      - "tensorforge_site_bundle/**"
+      - "tests/area_power_explorer/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: website-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: "24"
+      - name: Check data and browser-query parity
+        run: python3 -m unittest discover -s tests/area_power_explorer -v
+      - name: Check JavaScript syntax
+        run: |
+          node --check tensorforge_site_bundle/web/area_power_explorer/explorer.mjs
+          node --check tensorforge_site_bundle/web/area_power_explorer/ui.mjs
+          node --check tensorforge_site_bundle/web/area_power_explorer/app.js
+          node --check tensorforge_site_bundle/web/area_power_explorer/charts.js
+      - name: Build static website
+        run: python3 -m tensorforge_site_bundle.tools.area_power_explorer.main export-static --out-dir _site
+      - name: Check languages, themes, and interactions in Chrome
+        run: node tests/area_power_explorer/browser_smoke.mjs --site-dir _site
+      - name: Upload website artifact
+        uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v6.0.0
+      - name: Deploy repository website
+        id: deployment
+        uses: actions/deploy-pages@v5.0.1

@@ -7,8 +7,9 @@ import sqlite3
 from pathlib import Path
 
 from .build_db import build_database
+from .export_static import DEFAULT_SITE_DIR, export_static_site
 from .predict import build_prediction_artifacts
-from .server import make_server
+from .server import make_server, make_static_server
 
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_OUT_DIR = ROOT / "artifacts" / "area_power_explorer"
@@ -56,36 +57,54 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Area/power explorer build and serve commands")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    static_parser = subparsers.add_parser("export-static", help="Export a site with browser-side queries")
+    static_parser.add_argument("--out-dir", default=None)
+
     build_parser = subparsers.add_parser("build", help="Build SQLite DB and prediction artifacts")
     build_parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
     build_parser.add_argument("--skip-predictions", action="store_true")
     build_parser.add_argument("--force-rebuild", action="store_true")
 
-    serve_parser = subparsers.add_parser("serve", help="Serve the local explorer")
-    serve_parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
+    serve_parser = subparsers.add_parser("serve", help="Build and preview the static website")
+    serve_parser.add_argument("--out-dir", default=str(DEFAULT_SITE_DIR))
     serve_parser.add_argument("--host", default="127.0.0.1")
     serve_parser.add_argument("--port", type=int, default=8000)
-    serve_parser.add_argument("--skip-predictions", action="store_true")
-    serve_parser.add_argument("--force-rebuild", action="store_true")
+
+    api_parser = subparsers.add_parser("serve-api", help="Serve the legacy Python query API")
+    api_parser.add_argument("--out-dir", default=str(DEFAULT_OUT_DIR))
+    api_parser.add_argument("--host", default="127.0.0.1")
+    api_parser.add_argument("--port", type=int, default=8000)
+    api_parser.add_argument("--skip-predictions", action="store_true")
+    api_parser.add_argument("--force-rebuild", action="store_true")
 
     args = parser.parse_args(argv)
+    if args.command == "export-static":
+        site_path = export_static_site(Path(args.out_dir)) if args.out_dir else export_static_site()
+        print(f"Exported static explorer to {site_path}")
+        return 0
     out_dir = Path(args.out_dir)
 
-    if args.command == "build":
+    if args.command == "serve":
+        site_path = export_static_site(out_dir)
+        httpd = make_static_server(args.host, args.port, site_path)
+    elif args.command == "build":
         db_path = run_build_only(
             out_dir,
             include_predictions=not args.skip_predictions,
             reuse_existing=not args.force_rebuild,
         )
+        export_static_site(db_path=db_path, models_dir=out_dir / "models")
         print(f"Built explorer database at {db_path}")
         return 0
 
-    db_path = run_build_only(
-        out_dir,
-        include_predictions=not args.skip_predictions,
-        reuse_existing=not args.force_rebuild,
-    )
-    httpd = make_server(args.host, args.port, db_path)
+    else:
+        db_path = run_build_only(
+            out_dir,
+            include_predictions=not args.skip_predictions,
+            reuse_existing=not args.force_rebuild,
+        )
+        site_path = export_static_site(db_path=db_path, models_dir=out_dir / "models")
+        httpd = make_server(args.host, args.port, db_path, web_root=site_path)
     print(f"Serving area/power explorer at http://{args.host}:{args.port}/")
     try:
         httpd.serve_forever()

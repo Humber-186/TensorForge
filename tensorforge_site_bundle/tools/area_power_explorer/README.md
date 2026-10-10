@@ -1,223 +1,112 @@
-# Area/Power Explorer
+# TensorForge 网站与构建工具
 
-本目录包含 MultiPrecisionTensorCore 本地面积/功耗查询网站的后端、构建脚本与服务入口。
+网站采用纯静态托管。配置匹配、阵列面积/功耗换算和图表计算在浏览器执行，所有网站数据编入发布程序，不单独下载 JSON。
 
----
+## 日常预览
 
-## 1. 功能概览
-
-网站当前支持：
-
-- 查询 **（Measured Array）**
-- 查询 **（Derived from Measured Unit）**
-- 查询 **（Predicted Unit）** 回退结果
-- 按公式展示：
-  - **（Array Area = m × n × Unit Area = ...）**
-  - **（Array Power = m × n × Unit Power = ...）**
-  - **（Ops/cycle = 2 × m × n × k = ...）**
-- 显示配置维度：
-  - `m / n / k`
-  - `clk`
-  - `precision`
-  - `MX / NV`
-  - `norm / acc / out / midMat`
-
----
-
-## 2. 代码位置
-
-### 后端
-- `tools/area_power_explorer/`
-
-### 前端
-- `web/area_power_explorer/`
-
-### 测试
-- `tests/area_power_explorer/`
-
-### 生成产物
-- `artifacts/area_power_explorer/`
-
----
-
-## 3. 数据来源
-
-### 主数据
-- `data/clock_gated_area_power_measurements.csv`
-
-网站默认使用论文中的最新版时钟门控数据；`data/area_power_measurements.csv`
-仅保留为历史数据，不参与默认数据库构建。
-
-### 基线/补充数据
-- `data/baseline_comparison.csv`
-
-### 预测模型数据
-- `data/dp_training.csv`
-
-该训练集是最新版时钟门控主数据中的 560 个 dot-product 样本子集；构建预测产物前会校验每条训练记录与主数据一致。
-
-### 预测模型脚本
-- `data/dp_model.py`
-- `data/dp_two_stage_model.py`
-
----
-
-## 4. 使用方法
-
-### 4.1 先构建
-
-```bash
-python3 -m tools.area_power_explorer.main build
-```
-
-构建完成后会生成：
-
-- `artifacts/area_power_explorer/area_power.db`
-- `artifacts/area_power_explorer/models/...`
-
-### 4.2 启动本地网站
+从 `tensorforge_site_bundle/` 目录运行：
 
 ```bash
 python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000
 ```
 
-浏览器访问：
+访问 `http://127.0.0.1:8000/`。此命令重新导出数据并启动静态 HTTP 服务，不训练模型，也不依赖 `data/.venv`。
 
-- `http://127.0.0.1:8000/`
+界面支持简体中文和英文：首次跟随浏览器语言，之后记住用户选择。系统切换深色/浅色模式时，页面、控件和图表自动同步。
+选项旁的圆形 `i` 提示支持悬停、键盘聚焦和点击，按 Esc 可关闭。
+图表按容器宽度重新布局，保持文字可读；手机上的面积分解图例移至环图下方。悬停或轻触数据点、柱状图、扇区及模块图例即可查看详细数值。
 
----
+## 源码与发布目录
 
-## 5. 部署/运行策略
+| 路径 | 用途 |
+| --- | --- |
+| `web/area_power_explorer/` | 可维护的 HTML、CSS、JavaScript 源码 |
+| `web/area_power_explorer/ui.mjs` | 双语文案、语言偏好、说明提示的交互 |
+| `web/area_power_explorer/explorer.mjs` | 浏览器查询逻辑；源码仅保留数据占位符 |
+| `artifacts/area_power_explorer/site/` | 默认静态发布目录，已被 Git 忽略 |
+| `artifacts/area_power_explorer/area_power.db` | 离线 SQLite 数据产物 |
+| `artifacts/area_power_explorer/models/` | 离线模型预测、公式与指标 |
+| `tests/area_power_explorer/` | 数据一致性、查询对齐和真实浏览器检查 |
 
-### 默认行为：复用已有构建产物
+只部署构建生成的静态目录。导出命令会把数据嵌入该目录的 `explorer.mjs`，不会把生成数据写回源码；禁止将源码目录用作导出目标。
 
-为了避免每次启动都重新跑数据库构建和预测模型，当前 `build` / `serve` 默认会：
-
-- 如果已有 `area_power.db`，则直接复用
-- 如果已有 prediction artifacts，则直接复用
-
-这样可以显著降低：
-
-- 启动时间
-- CPU 开销
-- 内存峰值
-
-更适合日常本地使用。
-
-### 强制完整重建
-
-如果你确实改了 CSV 或模型代码，希望重新生成全部产物：
+## 导出与 GitHub Pages
 
 ```bash
+python3 -m tools.area_power_explorer.main export-static
+# 导出独立目录：
+python3 -m tools.area_power_explorer.main export-static --out-dir /tmp/tensorforge-site
+```
+
+导出使用主 CSV 重新构建测量数据，复用已有预测产物，生成完整静态页面和 `.nojekyll`。相对资源链接支持 `/TensorForge/` 子目录部署。
+
+仓库中的 `.github/workflows/pages.yml` 会执行数据检查、JavaScript 语法检查和 Chrome 界面检查，然后构建 `_site/`：
+
+- PR 运行检查与构建。
+- `main` 的推送与针对 `main` 的手动运行会部署到 GitHub Pages。
+- 发布任务只上传 `_site/`，不上传 RTL、CSV、数据库或后端工具。
+- 网站构建和检查使用 Python 标准库、Node 24 与 Chrome；不安装或运行模型训练依赖。
+
+首次发布需要仓库维护者在 **Settings → Pages → Source** 选择 **GitHub Actions**。
+
+## 数据来源与查询顺序
+
+主数据为 `data/clock_gated_area_power_measurements.csv` 的 4,445 条时钟门控综合记录。
+`data/area_power_measurements.csv` 保留为历史数据，不参与默认数据库构建。
+另外使用基线对比 CSV、Ventus 模块面积 CSV 和两阶段模型的离线预测表。
+
+浏览器按下列顺序匹配：
+
+1. **综合阵列数据**：完整匹配 `M/N/K`、频率、精度、MX/NV、Norm/Acc/Out 和 midMat，直接使用阵列报告。
+2. **综合单元推导**：匹配单元配置，面积与功耗乘以 `M × N`，属于阵列估算。
+3. **离线模型预测**：开启预测回退时，查已有预测表，并作同样的阵列换算。
+4. 都没有匹配记录时，返回无数据；不会为任意新配置现场运行模型。
+
+每周期理论操作数为 `2 × M × N × K`，理论吞吐为该操作数乘以目标时钟频率。乘法与加法各计一次操作。
+
+下拉选项来自综合数据。组合精度名称按格式分隔显示，查询值仍保留原始标识。
+浮点 Norm 选项为 FP16/FP32；整数报告中的代码 `4/8` 分别显示为 INT4/INT8 路径，便于查询整数配置。
+源数据并不覆盖所有选项组合，因此部分组合会返回无数据。
+
+## 离线数据库与模型构建
+
+以下命令供数据和模型维护使用，普通静态展示无需运行：
+
+```bash
+python3 -m tools.area_power_explorer.main build
 python3 -m tools.area_power_explorer.main build --force-rebuild
-```
-
-或者：
-
-```bash
-python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000 --force-rebuild
-```
-
-### 跳过预测产物
-
-如果只想构建数据库，不想跑预测模型：
-
-```bash
 python3 -m tools.area_power_explorer.main build --skip-predictions
 ```
 
----
+默认 `build` 复用已有数据库和预测产物。修改数据或模型并准备好训练环境后，使用 `--force-rebuild` 完整重建。
+`build` 完成后也会更新默认静态发布目录。单独更新综合 CSV 时，`export-static` 始终使用当前 CSV，不复用旧数据库。
 
-## 6. 预测模型说明
+模型训练入口依赖 `data/.venv/bin/python3` 及 NumPy、pandas、scikit-learn；该环境不随仓库提交。
+训练集 `data/dp_training.csv` 是主数据中的 560 条点积单元记录，构建预测产物前会逐字段验证一致性。
+修改综合数据后，应同步训练子集、预测 CSV、公式和验证指标，避免混用不同版本。
 
-预测 artifacts 依赖已有 Python 环境：
+- 单阶段模型：`data/dp_model.py`，按 `clk_mhz` 分组验证。
+- 两阶段模型：`data/dp_two_stage_model.py`，网页预测表使用 `scope=reuse` 的产物。
+- 复用范围的验证指标只评价复用样本，不代表所有配置的预测误差。
+
+兼容的 Python API 可显式运行：
 
 ```bash
-data/.venv/bin/python3
+python3 -m tools.area_power_explorer.main serve-api --host 127.0.0.1 --port 8000
 ```
 
-当前优化后的模型生成策略：
+## 修改后的检查
 
-- single-stage surrogate：
-  - 按 `clk_mhz` 分组评估
-- two-stage reuse surrogate：
-  - 按 `clk_mhz` 分组
-  - 使用 `cv-scope=reuse`
-- 训练 CSV 会先校验，确保只包含 dot-product 单元数据
+从仓库根目录运行：
 
----
-
-## 7. 当前 UI 设计说明
-
-当前页面中的查询项都使用**已有选项**，不再依赖自由文本输入。
-
-### 当前选项来源
-- `precision`：从数据库去重后生成用户侧 precision 选项
-  - UI 中会去掉前缀冲突，例如：
-    - `MXFP4 / NVFP4 / MXNVFP4` 在 UI 中显示为基础精度 `FP4`
-    - `MX / NV` 通过单独选项控制
-- `norm_kind`：
-  - UI 中只暴露真正的浮点归一化选项
-  - 不再显示 `4 / 8`
-- `acc_kind / out_kind / midMat / clk / m / n / k`
-  - 全部来自数据库现有值
-
----
-
-## 8. 常见命令
-
-### 构建
-```bash
-python3 -m tools.area_power_explorer.main build
-```
-
-### 强制重建
-```bash
-python3 -m tools.area_power_explorer.main build --force-rebuild
-```
-
-### 启动服务
-```bash
-python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000
-```
-
-### 启动服务并强制重建
-```bash
-python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000 --force-rebuild
-```
-
-### 运行测试
 ```bash
 python3 -m unittest discover -s tests/area_power_explorer -v
+python3 -m tensorforge_site_bundle.tools.area_power_explorer.main export-static
+node tests/area_power_explorer/browser_smoke.mjs
 ```
 
----
+浏览器检查使用 Node 24 内置的 WebSocket 和本机 Chrome，不需要 npm 包。
+可用 `CHROME_BIN` 指定 Chrome 可执行文件，用 `--site-dir` 指定发布目录，用 `--screenshots /tmp/tensorforge-ui` 保存检查截图。
 
-## 9. 当前已知限制
-
-- 当前前端选项已经从自由输入改为 selector，但还没有做更复杂的“多级联动筛选”
-- 某些 precision / MX / NV / norm / acc / out 组合在数据中本来就不存在，查询时会返回找不到数据
-- 预测结果仍然属于 surrogate 结果，不应与实测结果混淆
-
----
-
-## 10. 推荐本地使用流程
-
-第一次：
-
-```bash
-python3 -m tools.area_power_explorer.main build
-python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000
-```
-
-之后日常使用通常直接：
-
-```bash
-python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000
-```
-
-只有在你更新了数据表或预测模型之后，再使用：
-
-```bash
-python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000 --force-rebuild
-```
+双语文案修改放在 `ui.mjs` 的两个字典中，并保持键完整对应。配置值和源模块名保持原始标识。
+直接访问源码目录或以 `file://` 打开不属于支持的预览方式，请使用 `serve` 或构建后运行静态 HTTP 服务。

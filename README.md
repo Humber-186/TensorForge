@@ -144,18 +144,17 @@ DeepScaleTool-normalized 22 nm area/energy comparison:
 This repository is organized as an open research artifact and public RTL/data release. It provides the following components:
 
 - **Synthesizable tensor-core RTL** for systematic microarchitectural comparison.
-- **A local website** for querying measured and estimate-backed area/power results.
+- **A static website** with browser-side queries for measured and estimate-backed area/power results.
 - **Synthesis datasets** used to analyze multi-precision design trade-offs.
 - **An open cost model** used by the explorer to render predictions when direct measurements are unavailable.
 - **Open design rules** distilled from synthesis-backed exploration across the released design space.
 
 ## Quick Start
 
-Launch the local explorer website as follows:
+Build and preview the static explorer with Python's standard library:
 
 ```bash
 cd tensorforge_site_bundle
-python3 -m tools.area_power_explorer.main build
 python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000
 ```
 
@@ -164,6 +163,64 @@ Then open:
 ```text
 http://127.0.0.1:8000/
 ```
+
+The readable website source is in `tensorforge_site_bundle/web/area_power_explorer/`.
+The build output is in `tensorforge_site_bundle/artifacts/area_power_explorer/site/`
+and is ignored by Git. Deploy the contents of that generated directory to a static
+host. Relative URLs support the GitHub Pages project path `/TensorForge/`.
+Queries, array scaling, and chart calculations run in the browser; the host only
+serves files. No Python API, SQLite server, model runtime, or WebAssembly is needed
+for the deployed site.
+
+The interface supports English and Simplified Chinese, remembers the selected
+language, and otherwise follows the browser language. Information buttons explain
+architectural controls and result provenance on hover, focus, or tap. Colors,
+including chart labels and controls, follow the system's light/dark preference.
+Charts adapt to the available width while preserving readable text; on phones,
+the area-breakdown legend appears below the ring. Tap chart marks or legend
+entries to inspect their values.
+
+After updating measurements or the offline prediction artifacts, regenerate the
+static site from the bundle root:
+
+```bash
+python3 -m tools.area_power_explorer.main export-static
+# Or export a standalone deployment directory:
+python3 -m tools.area_power_explorer.main export-static --out-dir /tmp/tensorforge-site
+```
+
+Export rebuilds measurements from the source CSVs and reuses the released
+prediction CSV; it does not train models or require `data/.venv`. Model training
+remains an offline Python build step.
+
+### GitHub Pages
+
+[The website workflow](.github/workflows/pages.yml) checks data consistency,
+browser/Python query parity, and real-browser language/theme interactions, then
+exports a clean `_site/` artifact. Pull requests run the checks; pushes to `main`
+and manual runs on `main` also publish through the `github-pages` environment.
+Only the generated website is uploaded.
+
+A repository maintainer must enable **Settings → Pages → Source: GitHub Actions**.
+After the workflow is pushed and successfully deployed, the project website is
+available at `https://liuweibupt.github.io/TensorForge/`.
+
+### Website maintenance
+
+- Edit pages/styles and `ui.mjs` in the source directory. Keep both language
+  dictionaries complete; technical configuration values remain unchanged.
+- The source `explorer.mjs` has a data placeholder. `export-static` embeds all
+  website datasets into the output program; generated data is not checked into
+  the website source.
+- Update the training subset and offline model artifacts alongside changed
+  measurements. The checks reject training records or prediction targets that
+  do not match the released clock-gated measurements.
+- Run `python3 -m unittest discover -s tests/area_power_explorer -v` from the
+  repository root. After export, run
+  `node tests/area_power_explorer/browser_smoke.mjs` with Node 24 and Chrome for
+  interface checks. These website checks require no Python model dependencies.
+- `serve` previews the static build. The optional Python API is available with
+  `serve-api`; `build` remains the offline database/model build command.
 
 ## How to Inspect the Website Results
 
@@ -185,11 +242,20 @@ Click **Run Query** to retrieve the matching result.
 
 The website distinguishes among three result sources:
 
-- **Measured Array**: directly synthesized array-level data.
-- **Derived from Measured Unit**: array-level results derived from measured dot-product units.
-- **Predicted Unit**: estimate-backed results produced by the open cost model.
+- **Synthesized Array** (`measured_array`): directly synthesized array-level data; displayed unit costs are per-unit averages of the array totals.
+- **Derived from Synthesized Unit** (`derived_measured_unit`): array-level estimates scaled from synthesized dot-product units.
+- **Offline Model Prediction** (`predicted_unit`): estimates from the released cost-model prediction table.
 
-The result panel also shows the explicit formulas used to compute area, power, and operations per cycle, which makes each returned value auditable rather than opaque.
+The browser checks measured arrays first, then scales a matching measured unit by
+`M × N`, and finally looks up an offline prediction when fallback is enabled.
+Missing configurations return a structured no-data result. The prediction table
+contains released configurations; arbitrary new configurations are not evaluated
+by a model at query time. Measurements, predictions, baseline comparisons, and
+area breakdowns are compiled into `explorer.mjs`, loaded once with the program.
+The site makes no separate JSON data downloads or query API requests.
+
+The result panel shows the explicit area and power formulas. The query engine
+also computes operations per cycle and theoretical throughput.
 
 ### 3. Inspect the other data views
 
@@ -322,16 +388,20 @@ The current TensorForge website bundle contains two model families with the foll
 
 | Model | Target | Validation | Mean R² | Mean MAPE |
 | --- | --- | --- | ---: | ---: |
-| `dp_model_by_clk` | Area | 5-fold grouped by `clk_mhz` | 0.9536 | 7.89% |
-| `dp_model_by_clk` | Power (`total_value`) | 5-fold grouped by `clk_mhz` | 0.9620 | 7.59% |
-| `dp_two_stage_reuse_by_clk` | Area | 7-fold grouped CV, retrained 2026-06-21 | 0.9859 | 8.08% |
-| `dp_two_stage_reuse_by_clk` | Power | 7-fold grouped CV, retrained 2026-06-21 | 0.9726 | 7.34% |
+| `dp_model_by_clk` | Area | 5-fold grouped by `clk_mhz`, clock-gated training data | 0.9505 | 8.03% |
+| `dp_model_by_clk` | Power (`total_value`) | 5-fold grouped by `clk_mhz`, clock-gated training data | 0.9562 | 8.57% |
+| `dp_two_stage_reuse_by_clk` | Area | 7-fold grouped CV, `scope=reuse` | 0.9970 | 2.95% |
+| `dp_two_stage_reuse_by_clk` | Power | 7-fold grouped CV, `scope=reuse` | 0.9979 | 2.50% |
 
 Additional notes:
 
-- The retrained two-stage model uses 560 synthesized dot-product samples and reports the stricter 7-fold cross-validation results.
+- The current model artifacts use 560 clock-gated synthesized dot-product samples.
+- The two-stage `scope=reuse` metrics evaluate reuse rows while single-mode rows
+  remain available to train Stage-A. These numbers describe that validation scope,
+  rather than all-configuration prediction accuracy. The historical 2026-06-21
+  all-row metrics remain in `data/clock_gated_updates_2026/` for the earlier report.
 - The surrogate is used for explanation and future pruning only; all reported PPA points, Pareto fronts, and design rules remain synthesis-backed.
-- The single-stage model `dp_model_by_clk` is retained as an older baseline model for the website bundle.
+- The single-stage model `dp_model_by_clk` is retained as the baseline model family and has also been synchronized with the clock-gated training data.
 
 ### Role in the website
 

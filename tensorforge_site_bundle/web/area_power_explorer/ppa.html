@@ -3,40 +3,46 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>TensorForge PPA Explorer</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body data-page="ppa">
     <main class="layout">
-      <nav class="top-nav">
-        <a href="/index.html">Query</a>
-        <a href="/ppa.html">PPA Explorer</a>
-        <a href="/baseline.html">Baseline Compare</a>
-        <a href="/breakdown.html">Breakdown</a>
-      </nav>
+      <header class="site-header">
+        <nav class="top-nav" aria-label="TensorForge">
+          <a href="./index.html"><span data-i18n="nav.query">Query</span></a>
+          <a href="./ppa.html"><span data-i18n="nav.ppa">PPA Explorer</span></a>
+          <a href="./baseline.html"><span data-i18n="nav.baseline">Baseline Compare</span></a>
+          <a href="./breakdown.html"><span data-i18n="nav.breakdown">Area Breakdown</span></a>
+        </nav>
+        <button type="button" id="language-toggle" class="language-toggle" data-i18n="language.switch">简体中文</button>
+      </header>
       <section class="hero">
-        <h1>TensorForge PPA Explorer</h1>
-        <p>Interactive area-versus-power views for measured dot-product units and measured arrays under DC synthesis in TSMC 22nm.</p>
+        <div class="section-heading"><h1 data-i18n="page.ppa.title">TensorForge PPA Explorer</h1><span class="help"><button type="button" class="help-button" data-help-label="nav.ppa" aria-label="Explanation" aria-describedby="tip-ppa-ppa">i</button><span id="tip-ppa-ppa" class="tooltip" role="tooltip" data-i18n="help.ppa">PPA means power, performance, and area. This page plots synthesized area versus total power; clock and precision are filters.</span></span></div>
+        <p data-i18n="hero.ppa">Compare synthesized dot-product units and arrays. Filter by precision and target clock to explore area–power trade-offs.</p>
+        <p class="hero-note"><span data-i18n="synthesis">Synthesis conditions: </span><strong>Design Compiler · TSMC 22nm</strong></p>
       </section>
       <section class="panel chart-panel">
-        <h2>Dot Product Units</h2>
+        <h2 data-i18n="ppa.units">Dot-product units</h2>
         <form id="ppa-unit-filter-form" class="chart-filter-form">
-          <label>Clock (MHz) <select id="ppa-unit-clk"></select></label>
-          <label>Precision <select id="ppa-unit-precision"></select></label>
+          <div class="field"><div class="field-label"><label data-i18n="field.clock" for="ppa-unit-clk">Target clock (MHz)</label></div><select id="ppa-unit-clk"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.precision" for="ppa-unit-precision">Supported precision</label></div><select id="ppa-unit-precision"></select></div>
         </form>
-        <svg id="ppa-unit-chart" class="chart-svg" viewBox="0 0 960 480"></svg>
-        <div id="ppa-unit-detail" class="detail-box">(Hover a unit point to inspect its configuration and PPA.)</div>
+        <svg id="ppa-unit-chart" class="chart-svg" viewBox="0 0 960 480" role="img" aria-labelledby="ppa-unit-detail"></svg>
+        <div data-i18n="chart.hoverUnit" id="ppa-unit-detail" class="detail-box">Hover or tap a point to inspect its unit configuration, area, and power.</div>
       </section>
       <section class="panel chart-panel">
-        <h2>Measured Arrays</h2>
+        <h2 data-i18n="ppa.arrays">Synthesized arrays</h2>
         <form id="ppa-array-filter-form" class="chart-filter-form">
-          <label>Clock (MHz) <select id="ppa-array-clk"></select></label>
-          <label>Precision <select id="ppa-array-precision"></select></label>
+          <div class="field"><div class="field-label"><label data-i18n="field.clock" for="ppa-array-clk">Target clock (MHz)</label></div><select id="ppa-array-clk"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.precision" for="ppa-array-precision">Supported precision</label></div><select id="ppa-array-precision"></select></div>
         </form>
-        <svg id="ppa-array-chart" class="chart-svg" viewBox="0 0 960 480"></svg>
-        <div id="ppa-array-detail" class="detail-box">(Hover an array point to inspect its configuration and PPA.)</div>
+        <svg id="ppa-array-chart" class="chart-svg" viewBox="0 0 960 480" role="img" aria-labelledby="ppa-array-detail"></svg>
+        <div data-i18n="chart.hoverArray" id="ppa-array-detail" class="detail-box">Hover or tap a point to inspect its array configuration, area, and power.</div>
       </section>
+      <footer><span>TensorForge</span><a href="https://github.com/liuweibupt/TensorForge" data-i18n="footer.repo">Source repository</a></footer>
     </main>
-    <script src="/charts.js"></script>
+    <script type="module" src="./charts.js"></script>
   </body>
 </html>

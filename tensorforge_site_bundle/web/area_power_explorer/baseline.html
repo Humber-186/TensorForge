@@ -3,34 +3,40 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
     <title>TensorForge Baseline Comparison</title>
-    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body data-page="baseline">
     <main class="layout">
-      <nav class="top-nav">
-        <a href="/index.html">Query</a>
-        <a href="/ppa.html">PPA Explorer</a>
-        <a href="/baseline.html">Baseline Compare</a>
-        <a href="/breakdown.html">Breakdown</a>
-      </nav>
+      <header class="site-header">
+        <nav class="top-nav" aria-label="TensorForge">
+          <a href="./index.html"><span data-i18n="nav.query">Query</span></a>
+          <a href="./ppa.html"><span data-i18n="nav.ppa">PPA Explorer</span></a>
+          <a href="./baseline.html"><span data-i18n="nav.baseline">Baseline Compare</span></a>
+          <a href="./breakdown.html"><span data-i18n="nav.breakdown">Area Breakdown</span></a>
+        </nav>
+        <button type="button" id="language-toggle" class="language-toggle" data-i18n="language.switch">简体中文</button>
+      </header>
       <section class="hero">
-        <h1>TensorForge Baseline Comparison</h1>
-        <p>Interactive comparison between baseline dot-product implementations and TensorForge wrapper-based results.</p>
+        <div class="section-heading"><h1 data-i18n="page.baseline.title">TensorForge Baseline Comparison</h1></div>
+        <p data-i18n="hero.baseline">Compare baseline dot-product implementations and TensorForge designs at the same precision and dot-product length.</p>
+        <p class="hero-note"><span data-i18n="synthesis">Synthesis conditions: </span><strong>Design Compiler · TSMC 22nm</strong></p>
       </section>
       <section class="panel filters">
-        <h2>Comparison Filters</h2>
+        <h2 data-i18n="baseline.filters">Comparison filters</h2>
         <form id="baseline-filter-form" class="chart-filter-form">
-          <label>Precision <select id="baseline-precision"></select></label>
-          <label>Metric <select id="baseline-metric"><option value="area_um2">Area (um²)</option><option value="power_total_mw">Power (mW)</option></select></label>
+          <div class="field"><div class="field-label"><label data-i18n="field.precision" for="baseline-precision">Supported precision</label></div><select id="baseline-precision"></select></div>
+          <div class="field"><label for="baseline-metric" data-i18n="baseline.metric">Metric</label><select id="baseline-metric"><option value="area_um2" data-i18n="metric.area">Area (µm²)</option><option value="power_total_mw" data-i18n="metric.power">Power (mW)</option></select></div>
         </form>
       </section>
       <section class="panel chart-panel">
-        <h2>Baseline vs TensorForge</h2>
-        <svg id="baseline-chart" class="chart-svg" viewBox="0 0 960 480"></svg>
-        <div id="baseline-detail" class="detail-box">(Choose a precision to compare baseline and wrapper trends over K.)</div>
+        <h2 data-i18n="baseline.chart">Baseline vs TensorForge</h2>
+        <svg id="baseline-chart" class="chart-svg" viewBox="0 0 960 480" role="img" aria-labelledby="baseline-detail"></svg>
+        <div data-i18n="baseline.hint" id="baseline-detail" class="detail-box">Select a precision and metric. Hover or tap a bar to compare designs at the same K.</div>
       </section>
+      <footer><span>TensorForge</span><a href="https://github.com/liuweibupt/TensorForge" data-i18n="footer.repo">Source repository</a></footer>
     </main>
-    <script src="/charts.js"></script>
+    <script type="module" src="./charts.js"></script>
   </body>
 </html>

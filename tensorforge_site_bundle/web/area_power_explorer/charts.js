@@ -1,16 +1,19 @@
-async function fetchChartJson(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Request failed: ${res.status}`);
-  return res.json();
-}
+import { loadData, loadExplorer } from './explorer.mjs';
+import { formatNumber, precisionLabel, t } from './ui.mjs';
 
-function setOptions(select, values, defaultValue, labeler = (v) => ({ value: String(v), label: String(v) })) {
+function setOptions(select, values, defaultValue, labeler = (v) => ({ value: String(v), label: v === 'all' ? t('option.all') : precisionLabel(v) })) {
   const normalized = values && values.length ? values : [defaultValue];
-  select.innerHTML = normalized.map((value) => {
+  const previous = select.value;
+  select.replaceChildren(...normalized.map((value) => {
     const item = labeler(value);
-    return `<option value="${item.value}">${item.label}</option>`;
-  }).join('');
-  select.value = normalized.map(String).includes(String(defaultValue)) ? String(defaultValue) : String(normalized[0]);
+    const option = document.createElement('option');
+    option.value = item.value;
+    option.textContent = item.label;
+    return option;
+  }));
+  const available = normalized.map(String);
+  select.value = available.includes(previous) ? previous
+    : available.includes(String(defaultValue)) ? String(defaultValue) : available[0];
 }
 
 function svgClear(svg) {
@@ -24,8 +27,30 @@ function svgEl(name, attrs = {}) {
 }
 
 function colorForIndex(index) {
-  const palette = ['#2364d2', '#1d9a8a', '#e68a00', '#a855f7', '#d946ef', '#ef4444', '#14b8a6', '#64748b'];
+  const palette = Array.from({ length: 8 }, (_, index) => `var(--chart-color-${index + 1})`);
   return palette[index % palette.length];
+}
+
+function chartSize(svg, height) {
+  const width = Math.round(svg.clientWidth) || 960;
+  const mobile = width < 600;
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  return { width, height, mobile };
+}
+
+function watchChartSize(svg, render) {
+  let previousWidth = Math.round(svg.clientWidth);
+  new ResizeObserver(() => {
+    const width = Math.round(svg.clientWidth);
+    if (width === previousWidth) return;
+    previousWidth = width;
+    render();
+  }).observe(svg);
+}
+
+function inspectOnInteraction(element, describe) {
+  element.addEventListener('mouseenter', describe);
+  element.addEventListener('click', describe);
 }
 
 function initPPA() {
@@ -39,9 +64,12 @@ function initPPA() {
   const arrayClkSelect = document.getElementById('ppa-array-clk');
   const arrayPrecisionSelect = document.getElementById('ppa-array-precision');
 
-  fetchChartJson('/api/ppa-data').then((payload) => {
-    const unitPoints = payload.series.find((series) => series.name === 'Dot Product Units')?.points || [];
-    const arrayPoints = payload.series.find((series) => series.name === 'Measured Arrays')?.points || [];
+  loadExplorer().then((explorer) => {
+    const hasPPA = (point) => point.area_um2 !== null && point.power_total_mw !== null;
+    const unitPoints = explorer.units.filter(hasPPA);
+    const arrayPoints = explorer.arrays.filter((point) => (
+      hasPPA(point) && point.dim_m !== null && point.dim_n !== null
+    ));
 
     const renderScatter = ({ svg, detail, points, clkSelect, precisionSelect, kind }) => {
       svgClear(svg);
@@ -51,24 +79,30 @@ function initPPA() {
         return clkOk && precOk;
       });
       if (!selectedPoints.length) {
-        detail.textContent = `(No ${kind} points match the current filters.)`;
+        detail.textContent = t('chart.noPoints', { kind: t(kind === 'array' ? 'ppa.arrays' : 'ppa.units') });
         return;
       }
-      const backgroundPoints = points.filter((point) => !selectedPoints.includes(point));
-      const width = 960;
-      const height = 480;
+      const selectedSet = new Set(selectedPoints);
+      const backgroundPoints = points.filter((point) => !selectedSet.has(point));
+      const { width, height } = chartSize(svg, svg.clientWidth < 600 ? 360 : 480);
       const margin = { left: 70, right: 30, top: 30, bottom: 50 };
       const maxX = Math.max(...points.map((p) => p.power_total_mw));
       const maxY = Math.max(...points.map((p) => p.area_um2));
       const x = (v) => margin.left + (v / maxX) * (width - margin.left - margin.right);
       const y = (v) => height - margin.bottom - (v / maxY) * (height - margin.top - margin.bottom);
-      svg.appendChild(svgEl('line', { x1: margin.left, y1: height - margin.bottom, x2: width - margin.right, y2: height - margin.bottom, stroke: '#64748b' }));
-      svg.appendChild(svgEl('line', { x1: margin.left, y1: margin.top, x2: margin.left, y2: height - margin.bottom, stroke: '#64748b' }));
-      const xLabel = svgEl('text', { x: width / 2, y: height - 10, 'text-anchor': 'middle', fill: '#475569', 'font-size': 13 });
-      xLabel.textContent = 'Power (mW)';
+      detail.textContent = t(kind === 'array' ? 'chart.hoverArray' : 'chart.hoverUnit');
+      const describe = (point) => t('chart.point', {
+        kind: t(kind === 'array' ? 'ppa.arrays' : 'ppa.units'), precision: precisionLabel(point.precision_name),
+        clock: formatNumber(point.clk_mhz), k: point.dim_k,
+        area: formatNumber(point.area_um2, 2), power: formatNumber(point.power_total_mw, 3),
+      });
+      svg.appendChild(svgEl('line', { x1: margin.left, y1: height - margin.bottom, x2: width - margin.right, y2: height - margin.bottom, stroke: 'var(--axis)' }));
+      svg.appendChild(svgEl('line', { x1: margin.left, y1: margin.top, x2: margin.left, y2: height - margin.bottom, stroke: 'var(--axis)' }));
+      const xLabel = svgEl('text', { x: width / 2, y: height - 10, 'text-anchor': 'middle', fill: 'var(--chart-text)', 'font-size': 13 });
+      xLabel.textContent = t('metric.power');
       svg.appendChild(xLabel);
-      const yLabel = svgEl('text', { x: 18, y: height / 2, transform: `rotate(-90 18 ${height / 2})`, 'text-anchor': 'middle', fill: '#475569', 'font-size': 13 });
-      yLabel.textContent = 'Area (um²)';
+      const yLabel = svgEl('text', { x: 18, y: height / 2, transform: `rotate(-90 18 ${height / 2})`, 'text-anchor': 'middle', fill: 'var(--chart-text)', 'font-size': 13 });
+      yLabel.textContent = t('metric.area');
       svg.appendChild(yLabel);
 
       backgroundPoints.forEach((point) => {
@@ -76,11 +110,11 @@ function initPPA() {
           cx: x(point.power_total_mw),
           cy: y(point.area_um2),
           r: kind === 'array' ? 5 : 3.5,
-          fill: kind === 'array' ? '#e68a00' : '#2364d2',
+          fill: kind === 'array' ? 'var(--predicted)' : 'var(--measured)',
           opacity: 0.15,
         });
-        circle.addEventListener('mouseenter', () => {
-          detail.textContent = `(${kind}) precision=${point.precision_name}, clk=${point.clk_mhz} MHz, K=${point.dim_k}, area=${point.area_um2.toFixed(2)} um², power=${point.power_total_mw.toFixed(3)} mW`;
+        inspectOnInteraction(circle, () => {
+          detail.textContent = describe(point);
         });
         svg.appendChild(circle);
       });
@@ -90,13 +124,13 @@ function initPPA() {
           cx: x(point.power_total_mw),
           cy: y(point.area_um2),
           r: kind === 'array' ? 7 : 5,
-          fill: kind === 'array' ? '#e68a00' : '#2364d2',
+          fill: kind === 'array' ? 'var(--predicted)' : 'var(--measured)',
           opacity: 0.95,
-          stroke: '#0f172a',
+          stroke: 'var(--point-stroke)',
           'stroke-width': 1.5,
         });
-        circle.addEventListener('mouseenter', () => {
-          detail.textContent = `(${kind}) precision=${point.precision_name}, clk=${point.clk_mhz} MHz, K=${point.dim_k}, area=${point.area_um2.toFixed(2)} um², power=${point.power_total_mw.toFixed(3)} mW`;
+        inspectOnInteraction(circle, () => {
+          detail.textContent = describe(point);
         });
         svg.appendChild(circle);
       });
@@ -132,11 +166,21 @@ function initPPA() {
     unitPrecisionSelect.addEventListener('change', renderUnit);
     arrayClkSelect.addEventListener('change', renderArray);
     arrayPrecisionSelect.addEventListener('change', renderArray);
+    document.addEventListener('tensorforge:languagechange', () => {
+      setOptions(unitClkSelect, unitClocks, 'all');
+      setOptions(unitPrecisionSelect, unitPrecisions, 'all');
+      setOptions(arrayClkSelect, arrayClocks, 'all');
+      setOptions(arrayPrecisionSelect, arrayPrecisions, 'all');
+      renderUnit();
+      renderArray();
+    });
     renderUnit();
     renderArray();
+    watchChartSize(unitSvg, renderUnit);
+    watchChartSize(arraySvg, renderArray);
   }).catch((error) => {
-    unitDetail.textContent = `(Failed to load PPA data) ${error.message}`;
-    arrayDetail.textContent = `(Failed to load PPA data) ${error.message}`;
+    unitDetail.textContent = `${t('error.ppa')}: ${error.message}`;
+    arrayDetail.textContent = `${t('error.ppa')}: ${error.message}`;
   });
 }
 
@@ -147,7 +191,7 @@ function initBaseline() {
   const precisionSelect = document.getElementById('baseline-precision');
   const metricSelect = document.getElementById('baseline-metric');
 
-  fetchChartJson('/api/baseline-data').then((payload) => {
+  loadData('baseline').then((payload) => {
     const points = payload.series[0].points;
     const precisions = Array.from(new Set(points.map((p) => p.precision_name))).sort();
     setOptions(precisionSelect, precisions, precisions[0], (value) => ({ value: String(value), label: String(value) }));
@@ -158,12 +202,13 @@ function initBaseline() {
       const metric = metricSelect.value;
       const filtered = points.filter((p) => p.precision_name === precision);
       if (!filtered.length) {
-        detail.textContent = '(No baseline rows for the selected precision.)';
+        detail.textContent = t('baseline.empty');
         return;
       }
-      const width = 960;
-      const height = 480;
-      const margin = { left: 70, right: 30, top: 30, bottom: 60 };
+      const { width, height, mobile } = chartSize(svg, svg.clientWidth < 600 ? 360 : 480);
+      detail.textContent = t('baseline.hint');
+      const margin = mobile ? { left: 12, right: 12, top: 24, bottom: 48 }
+        : { left: 70, right: 30, top: 30, bottom: 60 };
       const ks = Array.from(new Set(filtered.map((p) => p.dim_k))).sort((a, b) => a - b);
       const grouped = ks.map((k) => ({
         k,
@@ -173,15 +218,16 @@ function initBaseline() {
       const maxY = Math.max(...grouped.flatMap((g) => [g.baseline?.[metric] || 0, g.wrapper?.[metric] || 0]));
       const band = (width - margin.left - margin.right) / grouped.length;
       const scaleY = (v) => height - margin.bottom - (v / maxY) * (height - margin.top - margin.bottom);
+      const gap = mobile ? 4 : 10;
       grouped.forEach((g, index) => {
-        const x0 = margin.left + index * band + 10;
+        const x0 = margin.left + index * band + gap;
         const bars = [
-          { label: 'Baseline', value: g.baseline?.[metric] || 0, color: '#64748b' },
-          { label: 'TensorForge', value: g.wrapper?.[metric] || 0, color: '#2364d2' },
+          { label: t('baseline.name'), value: g.baseline?.[metric] || 0, color: 'var(--axis)' },
+          { label: 'TensorForge', value: g.wrapper?.[metric] || 0, color: 'var(--measured)' },
         ];
         bars.forEach((bar, barIndex) => {
-          const barWidth = (band - 30) / 2;
-          const x = x0 + barIndex * (barWidth + 10);
+          const barWidth = (band - 3 * gap) / 2;
+          const x = x0 + barIndex * (barWidth + gap);
           const yVal = scaleY(bar.value);
           const rect = svgEl('rect', {
             x,
@@ -191,22 +237,32 @@ function initBaseline() {
             fill: bar.color,
             rx: 4,
           });
-          rect.addEventListener('mouseenter', () => {
-            detail.textContent = `(${precision}) K=${g.k}, ${bar.label}, ${metric}=${bar.value.toFixed(3)}`;
+          inspectOnInteraction(rect, () => {
+            detail.textContent = t('baseline.detail', {
+              precision, k: g.k, design: bar.label,
+              metric: t(metric === 'area_um2' ? 'metric.area' : 'metric.power'), value: formatNumber(bar.value, 3),
+            });
           });
           svg.appendChild(rect);
         });
-        const text = svgEl('text', { x: x0 + (band - 30) / 2, y: height - 20, 'text-anchor': 'middle', fill: '#475569', 'font-size': 12 });
-        text.textContent = `K=${g.k}`;
+        const text = svgEl('text', { x: margin.left + (index + 0.5) * band, y: height - (mobile ? 36 : 20), 'text-anchor': 'middle', fill: 'var(--chart-text)', 'font-size': 12 });
+        text.textContent = mobile ? String(g.k) : `K=${g.k}`;
         svg.appendChild(text);
       });
+      if (mobile) {
+        const label = svgEl('text', { x: width / 2, y: height - 10, 'text-anchor': 'middle', fill: 'var(--chart-text)', 'font-size': 13 });
+        label.textContent = t('field.k');
+        svg.appendChild(label);
+      }
     };
 
     precisionSelect.addEventListener('change', render);
     metricSelect.addEventListener('change', render);
+    document.addEventListener('tensorforge:languagechange', render);
     render();
+    watchChartSize(svg, render);
   }).catch((error) => {
-    detail.textContent = `(Failed to load baseline data) ${error.message}`;
+    detail.textContent = `${t('error.baseline')}: ${error.message}`;
   });
 }
 
@@ -235,44 +291,65 @@ function initBreakdown() {
   const detail = document.getElementById('breakdown-detail');
   const seriesSelect = document.getElementById('breakdown-series');
 
-  fetchChartJson('/api/breakdown-data').then((payload) => {
-    setOptions(seriesSelect, payload.series.map((series, index) => index), 0, (value) => ({ value: String(value), label: payload.series[value].name }));
+  loadData('breakdown').then((payload) => {
+    const seriesLabel = (series) => t(series.name === 'SM Top Area Breakdown' ? 'breakdown.sm' : 'breakdown.rolled');
+    const refreshOptions = () => setOptions(seriesSelect, payload.series.map((series, index) => index), 0,
+      (value) => ({ value: String(value), label: seriesLabel(payload.series[value]) }));
+    refreshOptions();
     const render = () => {
       svgClear(svg);
       const series = payload.series[Number(seriesSelect.value)];
       const points = series.points;
+      detail.textContent = t('breakdown.hint');
       const total = points.reduce((sum, point) => sum + point.value, 0);
       let angle = -Math.PI / 2;
-      const cx = 320;
-      const cy = 250;
-      const rOuter = 170;
-      const rInner = 90;
+      const width = Math.round(svg.clientWidth) || 960;
+      const mobile = width < 600;
+      const rOuter = Math.min(170, mobile ? (width - 40) / 2 : width * 0.22);
+      const rInner = rOuter * 0.53;
+      const cx = mobile ? width / 2 : width * 0.3;
+      const cy = mobile ? rOuter + 30 : 250;
+      const legendX = mobile ? 24 : Math.round(width * 0.58);
+      const legendY = mobile ? cy + rOuter + 40 : 30;
+      chartSize(svg, mobile ? legendY + points.length * 24 + 20 : 520);
       points.forEach((point, index) => {
         const slice = (point.value / total) * Math.PI * 2;
         const path = svgEl('path', {
           d: donutPath(cx, cy, rOuter, rInner, angle, angle + slice),
           fill: colorForIndex(index),
-          stroke: '#ffffff',
+          stroke: 'var(--panel)',
           'stroke-width': 2,
         });
-        path.addEventListener('mouseenter', () => {
+        const describe = () => {
           const share = (point.value / total) * 100;
-          detail.textContent = `(${series.name}) ${point.label}: area=${point.value.toFixed(2)} um², share=${share.toFixed(2)}%`;
-        });
+          detail.textContent = t('breakdown.detail', { series: seriesLabel(series), label: point.label,
+            area: formatNumber(point.value, 2), share: formatNumber(share, 2) });
+        };
+        inspectOnInteraction(path, describe);
         svg.appendChild(path);
-        const legend = svgEl('text', { x: 580, y: 40 + index * 22, fill: colorForIndex(index), 'font-size': 13 });
+        const swatch = svgEl('rect', { x: legendX, y: legendY + index * 24, width: 10, height: 10, fill: colorForIndex(index), rx: 2 });
+        inspectOnInteraction(swatch, describe);
+        svg.appendChild(swatch);
+        const legend = svgEl('text', { x: legendX + 20, y: legendY + 10 + index * 24, fill: 'var(--chart-text)', 'font-size': 13 });
+        inspectOnInteraction(legend, describe);
         legend.textContent = `${point.label} (${((point.value / total) * 100).toFixed(1)}%)`;
         svg.appendChild(legend);
         angle += slice;
       });
-      const centerText = svgEl('text', { x: cx, y: cy, 'text-anchor': 'middle', fill: '#0f172a', 'font-size': 18, 'font-weight': '700' });
-      centerText.textContent = series.name;
+      const centerText = svgEl('text', { x: cx, y: cy - 12, 'text-anchor': 'middle', fill: 'var(--chart-text)', 'font-size': 18, 'font-weight': '700' });
+      const heading = svgEl('tspan', { x: cx });
+      heading.textContent = t('breakdown.total');
+      const value = svgEl('tspan', { x: cx, dy: 30 });
+      value.textContent = `${formatNumber(total / 1_000_000, 2)} mm²`;
+      centerText.append(heading, value);
       svg.appendChild(centerText);
     };
     seriesSelect.addEventListener('change', render);
+    document.addEventListener('tensorforge:languagechange', () => { refreshOptions(); render(); });
     render();
+    watchChartSize(svg, render);
   }).catch((error) => {
-    detail.textContent = `(Failed to load breakdown data) ${error.message}`;
+    detail.textContent = `${t('error.breakdown')}: ${error.message}`;
   });
 }
 

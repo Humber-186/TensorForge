@@ -3,46 +3,51 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>TensorForge: Systematic Design Space Exploration of Multi-Precision Tensor Cores for GPGPUs</title>
-    <link rel="stylesheet" href="/styles.css">
+    <meta name="color-scheme" content="light dark">
+    <title>TensorForge: Multi-Precision Tensor Core Design Space Explorer</title>
+    <link rel="stylesheet" href="./styles.css">
   </head>
-  <body>
+  <body data-page="index">
     <main class="layout">
-      <nav class="top-nav">
-        <a href="/index.html">Query</a>
-        <a href="/ppa.html">PPA Explorer</a>
-        <a href="/baseline.html">Baseline Compare</a>
-        <a href="/breakdown.html">Breakdown</a>
-      </nav>
+      <header class="site-header">
+        <nav class="top-nav" aria-label="TensorForge">
+          <a href="./index.html"><span data-i18n="nav.query">Query</span></a>
+          <a href="./ppa.html"><span data-i18n="nav.ppa">PPA Explorer</span></a>
+          <a href="./baseline.html"><span data-i18n="nav.baseline">Baseline Compare</span></a>
+          <a href="./breakdown.html"><span data-i18n="nav.breakdown">Area Breakdown</span></a>
+        </nav>
+        <button type="button" id="language-toggle" class="language-toggle" data-i18n="language.switch">简体中文</button>
+      </header>
       <section class="hero">
-        <h1>TensorForge: Systematic Design Space Exploration of Multi-Precision Tensor Cores for GPGPUs</h1>
-        <p>Query measured and derived area/power data with explicit formulas, MX/NV metadata, and local visualization.</p>
-        <p class="hero-note">PPA results shown here are synthesized by <strong>DC (Design Compiler)</strong> under <strong>TSMC 22nm</strong> assumptions.</p>
+        <div class="section-heading"><h1 data-i18n="page.index.title">TensorForge: Multi-Precision Tensor Core Design Space Explorer</h1></div>
+        <p data-i18n="hero.index">Explore tensor-core configurations using synthesized area and power data, with traceable estimates when available.</p>
+        <p class="hero-note"><span data-i18n="synthesis">Synthesis conditions: </span><strong>Design Compiler · TSMC 22nm</strong></p>
       </section>
       <section class="panel filters">
-        <h2>Query Controls</h2>
+        <h2 data-i18n="query.controls">Configuration</h2>
         <form id="query-form">
-          <label>M <select name="m" id="dim-m"></select></label>
-          <label>N <select name="n" id="dim-n"></select></label>
-          <label>K <select name="k" id="dim-k"></select></label>
-          <label>Clock (MHz) <select name="clk_mhz" id="clk-mhz"></select></label>
-          <label>Precision <select name="precision_name" id="precision-name"></select></label>
-          <label>MX <select name="mx" id="mx-select"></select></label>
-          <label>NV <select name="nv" id="nv-select"></select></label>
-          <label>Norm <select name="norm_kind" id="norm-kind"></select></label>
-          <label>Acc <select name="acc_kind" id="acc-kind"></select></label>
-          <label>Out <select name="out_kind" id="out-kind"></select></label>
-          <label>midMat <select name="midmat" id="midmat-select"></select></label>
-          <label>Prediction Fallback <select name="allow_predicted" id="allow-predicted"></select></label>
-          <button type="submit">Run Query</button>
+          <div class="field"><div class="field-label"><label data-i18n="field.m" for="dim-m">Array rows (M)</label><span class="help"><button type="button" class="help-button" data-help-label="field.m" aria-label="Explanation" aria-describedby="tip-index-m">i</button><span id="tip-index-m" class="tooltip" role="tooltip" data-i18n="help.m">Number of output rows. Array estimates use M × N identical dot-product units.</span></span></div><select id="dim-m" name="m"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.n" for="dim-n">Array columns (N)</label><span class="help"><button type="button" class="help-button" data-help-label="field.n" aria-label="Explanation" aria-describedby="tip-index-n">i</button><span id="tip-index-n" class="tooltip" role="tooltip" data-i18n="help.n">Number of output columns. Together with M, this determines the unit count used in array estimates.</span></span></div><select id="dim-n" name="n"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.k" for="dim-k">Dot-product length (K)</label><span class="help"><button type="button" class="help-button" data-help-label="field.k" aria-label="Explanation" aria-describedby="tip-index-k">i</button><span id="tip-index-k" class="tooltip" role="tooltip" data-i18n="help.k">Number of terms in each dot product. The theoretical operation count is 2 × M × N × K per cycle, counting multiplication and addition separately.</span></span></div><select id="dim-k" name="k"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.clock" for="clk-mhz">Target clock (MHz)</label><span class="help"><button type="button" class="help-button" data-help-label="field.clock" aria-label="Explanation" aria-describedby="tip-index-clock">i</button><span id="tip-index-clock" class="tooltip" role="tooltip" data-i18n="help.clock">The target clock used during hardware synthesis, in MHz. Only released clock configurations are available.</span></span></div><select id="clk-mhz" name="clk_mhz"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.precision" for="precision-name">Supported precision</label><span class="help"><button type="button" class="help-button" data-help-label="field.precision" aria-label="Explanation" aria-describedby="tip-index-precision">i</button><span id="tip-index-precision" class="tooltip" role="tooltip" data-i18n="help.precision">A combined name selects a unit supporting the listed formats, not just one workload mode. FP4LUT denotes the lookup-table FP4 implementation. Raw configuration identifiers are preserved.</span></span></div><select id="precision-name" name="precision_name"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.mx" for="mx-select">MX scaling</label><span class="help"><button type="button" class="help-button" data-help-label="field.mx" aria-label="Explanation" aria-describedby="tip-index-mx">i</button><span id="tip-index-mx" class="tooltip" role="tooltip" data-i18n="help.mx">Match the MX microscaling flag in the released configuration (withMX / noMX). MX and NV are separate flags; not all combinations have data.</span></span></div><select id="mx-select" name="mx"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.nv" for="nv-select">NV variant</label><span class="help"><button type="button" class="help-button" data-help-label="field.nv" aria-label="Explanation" aria-describedby="tip-index-nv">i</button><span id="tip-index-nv" class="tooltip" role="tooltip" data-i18n="help.nv">Match the separate NV format/scale variant flag in the released configuration (withNV / noNV). Available results depend on the other selected settings.</span></span></div><select id="nv-select" name="nv"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.norm" for="norm-kind">Normalization (Norm)</label><span class="help"><button type="button" class="help-button" data-help-label="field.norm" aria-label="Explanation" aria-describedby="tip-index-norm">i</button><span id="tip-index-norm" class="tooltip" role="tooltip" data-i18n="help.norm">Normalization/alignment format in the floating-point path. Codes 4 and 8 in the reports identify integer INT4 and INT8 paths; they are displayed as integer-path options.</span></span></div><select id="norm-kind" name="norm_kind"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.acc" for="acc-kind">Accumulator (Acc)</label><span class="help"><button type="button" class="help-button" data-help-label="field.acc" aria-label="Explanation" aria-describedby="tip-index-acc">i</button><span id="tip-index-acc" class="tooltip" role="tooltip" data-i18n="help.acc">Format of the accumulator used to sum products, such as FP32 or INT32. It can differ from the input precision.</span></span></div><select id="acc-kind" name="acc_kind"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.out" for="out-kind">Output format (Out)</label><span class="help"><button type="button" class="help-button" data-help-label="field.out" aria-label="Explanation" aria-describedby="tip-index-out">i</button><span id="tip-index-out" class="tooltip" role="tooltip" data-i18n="help.out">Output-format configuration from the synthesis reports. Combined format names preserve the original configuration, independently of the input and accumulator formats.</span></span></div><select id="out-kind" name="out_kind"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.midmat" for="midmat-select">Intermediate configuration (midMat)</label><span class="help"><button type="button" class="help-button" data-help-label="field.midmat" aria-label="Explanation" aria-describedby="tip-index-midmat">i</button><span id="tip-index-midmat" class="tooltip" role="tooltip" data-i18n="help.midmat">The original midMat parameter distinguishes intermediate arithmetic/datapath configurations. Its available values come from the released designs; it is separate from M, N, and K.</span></span></div><select id="midmat-select" name="midmat"></select></div>
+          <div class="field"><div class="field-label"><label data-i18n="field.prediction" for="allow-predicted">Prediction fallback</label><span class="help"><button type="button" class="help-button" data-help-label="field.prediction" aria-label="Explanation" aria-describedby="tip-index-prediction">i</button><span id="tip-index-prediction" class="tooltip" role="tooltip" data-i18n="help.prediction">Try the released offline prediction table only after both array and unit synthesis lookups fail. This does not run a model for arbitrary new configurations.</span></span></div><select id="allow-predicted" name="allow_predicted"></select></div>
+          <button type="submit" class="run-query" data-i18n="query.run">Run query</button>
         </form>
       </section>
       <section class="panel metrics">
-        <h2>Results</h2>
-        <div id="result-cards" class="cards"></div>
+        <div class="section-heading"><h2 data-i18n="query.results">Results</h2><span class="help"><button type="button" class="help-button" data-help-label="result.source" aria-label="Explanation" aria-describedby="tip-index-source">i</button><span id="tip-index-source" class="tooltip" role="tooltip" data-i18n="help.source">Synthesized array: use the full array report. Derived unit: multiply measured unit costs by M × N. Predicted unit: scale an offline model estimate. The latter two are array estimates.</span></span></div>
+        <div id="result-cards" class="cards" aria-live="polite" aria-atomic="true"></div>
         <pre id="result-formulas" class="formulas"></pre>
       </section>
+      <footer><span>TensorForge</span><a href="https://github.com/liuweibupt/TensorForge" data-i18n="footer.repo">Source repository</a></footer>
     </main>
-    <script src="/app.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>

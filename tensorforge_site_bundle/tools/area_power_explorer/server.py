@@ -9,7 +9,7 @@ import sqlite3
 import csv
 from functools import partial
 from http import HTTPStatus
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
@@ -51,7 +51,6 @@ def _db_options(db_path: Path) -> dict[str, list]:
         norms = [
             r[0]
             for r in con.execute("SELECT DISTINCT norm_kind FROM dp_units WHERE norm_kind IS NOT NULL AND norm_kind != 'unknown' ORDER BY norm_kind")
-            if any(ch.isalpha() for ch in str(r[0]))
         ]
         accs = [r[0] for r in con.execute("SELECT DISTINCT acc_kind FROM dp_units WHERE acc_kind IS NOT NULL AND acc_kind != 'unknown' ORDER BY acc_kind")]
         outs = [r[0] for r in con.execute("SELECT DISTINCT out_kind FROM dp_units WHERE out_kind IS NOT NULL AND out_kind != 'unknown' ORDER BY out_kind")]
@@ -180,10 +179,11 @@ def _api_breakdown_data() -> dict[str, list]:
 
 
 class ExplorerHandler(BaseHTTPRequestHandler):
-    def __init__(self, *args, db_path: Path, engine: ExplorerQueryEngine | None = None, options: dict | None = None, **kwargs):
+    def __init__(self, *args, db_path: Path, engine: ExplorerQueryEngine | None = None, options: dict | None = None, web_root: Path = WEB_ROOT, **kwargs):
         self._db_path = Path(db_path)
         self._engine = engine
         self._options = options
+        self._web_root = Path(web_root)
         super().__init__(*args, **kwargs)
 
     def _send_json(self, payload: dict, status: int = 200) -> None:
@@ -251,18 +251,23 @@ class ExplorerHandler(BaseHTTPRequestHandler):
             return
 
         relative = parsed.path.lstrip("/") or "index.html"
-        file_path = WEB_ROOT / relative
+        file_path = self._web_root / relative
         if file_path.is_dir():
             file_path = file_path / "index.html"
         if not file_path.exists() and relative == "index.html":
-            file_path = WEB_ROOT / "index.html"
+            file_path = self._web_root / "index.html"
         if not file_path.exists():
-            file_path = WEB_ROOT / "index.html"
+            file_path = self._web_root / "index.html"
         self._serve_file(file_path)
 
 
-def make_server(host: str, port: int, db_path: Path) -> ThreadingHTTPServer:
+def make_server(host: str, port: int, db_path: Path, *, web_root: Path = WEB_ROOT) -> ThreadingHTTPServer:
     engine = ExplorerQueryEngine(db_path)
     options = _db_options(db_path)
-    handler = partial(ExplorerHandler, db_path=db_path, engine=engine, options=options)
+    handler = partial(ExplorerHandler, db_path=db_path, engine=engine, options=options, web_root=web_root)
+    return ThreadingHTTPServer((host, port), handler)
+
+
+def make_static_server(host: str, port: int, site_dir: Path) -> ThreadingHTTPServer:
+    handler = partial(SimpleHTTPRequestHandler, directory=str(Path(site_dir).resolve()))
     return ThreadingHTTPServer((host, port), handler)
