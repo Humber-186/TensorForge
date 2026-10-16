@@ -1,4 +1,4 @@
-.reuse-page { --lab-blue: #2364d2; --lab-teal: #16867c; --lab-purple: #8762b0; background: #f3f6fa; }
+.reuse-page { --lab-blue: #2364d2; --lab-teal: #16867c; --lab-purple: #8762b0; background: #f3f6fa; font-family: Inter, "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", "Segoe UI", Arial, sans-serif; }
 .reuse-page * { box-sizing: border-box; }
 .reuse-page [hidden] { display: none !important; }
 .reuse-layout { max-width: 1460px; gap: 25px; padding: 28px 34px 20px; }
@@ -9,7 +9,7 @@
 .lab-hero { display: flex; align-items: center; justify-content: space-between; padding: 14px 6px 20px; gap: 28px; }
 .eyebrow { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .15em; margin: 0 0 13px; }
 .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #198e7f; display: inline-block; margin-right: 7px; vertical-align: middle; }
-.lab-hero h1 { font-size: clamp(36px, 3.8vw, 52px); letter-spacing: -.045em; line-height: 1.05; margin: 17px 0; font-weight: 750; }
+.lab-hero h1 { font-size: clamp(36px, 3.8vw, 52px); letter-spacing: -.025em; line-height: 1.25; margin: 17px 0; font-weight: 750; }
 .hero-description { color: #617086; line-height: 1.65; font-size: 15px; margin: 0; }
 .hero-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 32px; padding: 22px 28px; border-left: 1px solid var(--border); min-width: 330px; }
 .hero-facts strong { display: block; font-size: 32px; font-weight: 650; letter-spacing: -.04em; }
@@ -108,7 +108,7 @@
 .strategy-row:hover { background: #f6f9fe; }
 .strategy-row.selected { background: #edf4ff; border-color: #bfd3f0; }
 .strategy-row .rank { font-size: 9px; color: #94a1b3; }
-.strategy-row .strategy-name { display: block; font-size: 10px; font-weight: 650; }
+.strategy-row .strategy-name { display: block; font-size: 11px; font-weight: 650; }
 .strategy-row .strategy-groups { display: block; font-size: 8px; font-weight: 400; color: #8390a4; margin-top: 4px; overflow-wrap: anywhere; line-height: 1.5; }
 .row-tags { font-size: 7px; text-transform: uppercase; color: #168272; border: 1px solid #b9dbd2; padding: 2px 3px; border-radius: 3px; margin-left: 4px; white-space: nowrap; }
 .area-track { position: relative; display: block; height: 14px; border-radius: 3px; background: #eef2f7; }

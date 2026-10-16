@@ -17,6 +17,14 @@ const scalar = async (id) => (await page.locator(`#${id}`).textContent()).trim()
 const setRange = async (id, value) => page.locator(`#${id}`).evaluate((input, next) => { input.value = next; input.dispatchEvent(new Event('input', {bubbles: true})); }, String(value));
 const ready = async () => { await page.goto(`${base}/reuse.html`); await page.locator('#lab').waitFor({state: 'visible'}); };
 const choose = async (id) => page.locator(`[data-strategy="${id}"]`).click();
+const assertChineseUI = async () => {
+  assert.equal(await page.locator('html').getAttribute('lang'), 'zh-CN');
+  assert.match(await page.locator('h1').textContent(), /多种精度/);
+  for (const name of await page.locator('.strategy-name').allTextContents()) {
+    assert.match(name, /[\u4e00-\u9fff]/, `strategy description lacks Chinese: ${name}`);
+  }
+  assert.doesNotMatch(await page.locator('body').innerText(), /\b(?:Precision Reuse Lab|General purpose|Floating-point inference|Low-bit inference|Required precision support|Define your core|Selected area|Area saved vs\. dedicated|Retained datapaths|Strategies within budget|Inside your selected strategy|18 ways to share the silicon|Copy experiment link|Export CSV|Reset experiment|LOOKUP TABLE|Within area budget|Measurement unavailable|Both physical units)\b/);
+};
 const requirements = async (formats) => {
   // Select additions first so the last required format is never accidentally cleared.
   for (const format of formats) await page.locator(`.format-chip input[value="${format}"]`).check();
@@ -29,6 +37,7 @@ try {
   const point = (id, k = 32, clk = 1410) => payload.points.find((p) => p.strategy_id === id && p.k === k && p.clk_mhz === clk);
   const area = (id, formats, k = 32, clk = 1410) => point(id, k, clk).groups.filter((g) => g.formats.some((f) => formats.includes(f))).reduce((sum, g) => sum + g.area_um2, 0);
   assert.equal(await page.locator('.strategy-row').count(), 18);
+  await assertChineseUI();
   assert.equal(await scalar('metric-area'), '53,007');
   assert.equal(await scalar('metric-saving'), '60.7%');
   assert.equal(await page.locator('#k-range').getAttribute('aria-valuetext'), 'K = 32');
@@ -47,9 +56,10 @@ try {
     await choose(strategy.id);
     assert.equal(await scalar('metric-area'), fmt(point(strategy.id).area_um2));
     assert.equal(await page.locator('.datapath-card[data-retained="true"]').count(), strategy.groups.length);
+    await assertChineseUI();
   }
   await choose('s07');
-  assert.match(await scalar('strategy-note'), /Both physical units/);
+  assert.match(await scalar('strategy-note'), /两个物理单元/);
   assert.equal(await page.locator('.datapath-card.traced').count(), 1);
   await page.locator('[data-trace="BF16"]').click();
   assert.equal(await page.locator('.datapath-card.traced').count(), 2);
@@ -78,7 +88,7 @@ try {
   await choose('s18');
   assert.equal(await scalar('metric-area'), fmt(area('s18', ['FP4'])));
   assert.equal(await page.locator('.datapath-card[data-retained="true"]').count(), 1);
-  assert.match(await page.locator('.datapath-card[data-retained="true"]').textContent(), /LOOKUP TABLE/);
+  assert.match(await page.locator('.datapath-card[data-retained="true"]').textContent(), /FP4 查找表/);
   await page.locator('.format-chip input[value="FP4"]').click();
   assert.equal(await page.locator('.format-chip input:checked').count(), 1);
 
@@ -101,8 +111,8 @@ try {
   const download = await downloadPromise;
   const csv = await readFile(await download.path(), 'utf8');
   assert.equal(csv.trim().split('\r\n').length, 19);
-  assert.match(csv, /source_rows/);
-  assert.match(csv, /Whole-datapath pruning/);
+  assert.match(csv, /来源行号/);
+  assert.match(csv, /整条通路裁剪/);
   await page.locator('#reset-lab').click();
   await setRange('budget-range', 20);
   assert.equal(await scalar('metric-feasible'), '0 / 18');
@@ -142,15 +152,15 @@ try {
   assert.equal(await scalar('metric-area'), '53,007');
   assert.equal(await scalar('metric-feasible'), '—');
   assert.equal(await scalar('metric-saving'), '—');
-  assert.match(await scalar('selected-budget'), /unavailable/);
-  assert.match(await scalar('budget-value'), /unavailable/);
+  assert.match(await scalar('selected-budget'), /不可用/);
+  assert.match(await scalar('budget-value'), /不可用/);
   assert.equal(await page.locator('.budget-line').count(), 0);
   await page.unroute('**/api/reuse-data');
   await page.route('**/api/reuse-data', (route) => route.fulfill({status: 500, json: {error: 'Missing fixture'}}));
   await page.goto(`${base}/reuse.html`);
   await page.locator('.lab-status.error').waitFor({state: 'visible'});
-  assert.match(await scalar('load-status'), /could not be loaded/);
-  assert.equal(await page.getByRole('button', {name: 'Retry', exact: true}).count(), 1);
+  assert.match(await scalar('load-status'), /加载失败/);
+  assert.equal(await page.getByRole('button', {name: '重试', exact: true}).count(), 1);
   assert.deepEqual(errors, []);
   assert.deepEqual(failures, []);
   console.log('PASS: 18 strategies, 35 operating points, whole-unit pruning, LUT, tracing, budgets, URL, CSV, keyboard, responsive layouts, missing-reference and API-error states.');

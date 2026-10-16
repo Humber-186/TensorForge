@@ -1,111 +1,111 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Explore 18 TensorForge precision-sharing strategies using released synthesis measurements. Select formats, inspect datapaths, and compare silicon area.">
-    <title>Precision Reuse Lab · TensorForge</title>
+    <meta name="description" content="基于已发布的综合测量数据，探索 TensorForge 论文中的 18 种精度复用策略。选择精度、查看数据通路，并比较芯片面积。">
+    <title>精度复用实验室 · TensorForge</title>
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/reuse.css">
   </head>
   <body class="reuse-page">
     <main class="layout reuse-layout">
-      <nav class="top-nav" aria-label="Main navigation">
-        <a href="/index.html">Query</a>
-        <a href="/ppa.html">PPA Explorer</a>
-        <a href="/baseline.html">Baseline Compare</a>
-        <a href="/breakdown.html">Breakdown</a>
-        <a href="/reuse.html" aria-current="page">Precision Reuse Lab <span class="nav-new">LAB</span></a>
+      <nav class="top-nav" aria-label="主导航">
+        <a href="/index.html">配置查询</a>
+        <a href="/ppa.html">PPA 探索</a>
+        <a href="/baseline.html">基线对比</a>
+        <a href="/breakdown.html">面积分解</a>
+        <a href="/reuse.html" aria-current="page">精度复用实验室 <span class="nav-new">实验</span></a>
       </nav>
 
       <header class="lab-hero">
         <div>
-          <p class="eyebrow"><span class="live-dot"></span> TENSORFORGE / INTERACTIVE DSE</p>
-          <h1>Many precisions.<br>How much silicon?</h1>
-          <p class="hero-description">Choose the formats. Explore the sharing.<br>See what each datapath costs.</p>
+          <p class="eyebrow"><span class="live-dot"></span> TENSORFORGE / 交互式 DSE</p>
+          <h1>多种精度，<br>面积如何取舍？</h1>
+          <p class="hero-description">选精度，切换复用策略。<br>看清每条数据通路的面积代价。</p>
         </div>
         <div class="hero-facts">
-          <div><strong>18</strong><span>paper sharing strategies</span></div>
-          <div><strong id="operating-count">35</strong><span>K × clock operating points</span></div>
-          <p><span class="live-dot"></span> TSMC 22 nm · DC synthesis<br>Released unit measurements</p>
+          <div><strong>18</strong><span>种论文复用策略</span></div>
+          <div><strong id="operating-count">35</strong><span>组 K × 频率操作点</span></div>
+          <p><span class="live-dot"></span> TSMC 22 nm · DC 综合<br>已发布的单元测量数据</p>
         </div>
       </header>
 
-      <div id="load-status" class="lab-status" role="status">Loading synthesis measurements…</div>
+      <div id="load-status" class="lab-status" role="status">正在加载综合测量数据…</div>
       <div id="lab" class="lab-grid" hidden>
-        <aside class="lab-controls panel" aria-label="Experiment controls">
-          <div class="section-heading"><span class="step-number">01</span><h2>Define your core</h2></div>
-          <p class="control-intro">Start with a scenario, then make it yours.</p>
-          <div class="scenario-list" aria-label="Example scenarios">
-            <button type="button" data-scenario="all" class="scenario active" aria-pressed="true"><span>General purpose</span><small>All seven formats</small><span aria-hidden="true">↗</span></button>
-            <button type="button" data-scenario="float" class="scenario" aria-pressed="false"><span>Floating-point inference</span><small>FP16 + BF16 + MXFP8/6/4</small><span aria-hidden="true">↗</span></button>
-            <button type="button" data-scenario="low" class="scenario" aria-pressed="false"><span>Low-bit inference</span><small>MXFP8 + MXFP4 + INT8/4</small><span aria-hidden="true">↗</span></button>
+        <aside class="lab-controls panel" aria-label="实验设置">
+          <div class="section-heading"><span class="step-number">01</span><h2>定义你的计算核心</h2></div>
+          <p class="control-intro">从示例场景出发，调整为你的需求。</p>
+          <div class="scenario-list" aria-label="示例场景">
+            <button type="button" data-scenario="all" class="scenario active" aria-pressed="true"><span>通用计算</span><small>全部七种精度</small><span aria-hidden="true">↗</span></button>
+            <button type="button" data-scenario="float" class="scenario" aria-pressed="false"><span>浮点推理</span><small>FP16 + BF16 + MXFP8/6/4</small><span aria-hidden="true">↗</span></button>
+            <button type="button" data-scenario="low" class="scenario" aria-pressed="false"><span>低比特推理</span><small>MXFP8 + MXFP4 + INT8/4</small><span aria-hidden="true">↗</span></button>
           </div>
-          <fieldset class="format-fieldset"><legend>Required precision support</legend><div id="format-toggles" class="format-toggles"></div></fieldset>
+          <fieldset class="format-fieldset"><legend>需要支持的精度</legend><div id="format-toggles" class="format-toggles"></div></fieldset>
           <div class="control-block">
-            <label for="k-range" class="range-label"><span>Base inner-product K</span><output id="k-value" for="k-range">32</output></label>
+            <label for="k-range" class="range-label"><span>基础内积长度 K</span><output id="k-value" for="k-range">32</output></label>
             <input type="range" id="k-range" min="0" max="4" value="4" step="1">
             <div id="k-ticks" class="range-ticks" aria-hidden="true"></div>
-            <p class="micro-copy">Low-bit datapaths use the paper’s 2K / 4K lane scaling.</p>
+            <p class="micro-copy">低比特通路沿用论文中的 2K / 4K 并行度配置。</p>
           </div>
-          <label class="control-block" for="clock-select">Synthesis clock target <select id="clock-select"></select></label>
+          <label class="control-block" for="clock-select">综合目标频率 <select id="clock-select"></select></label>
           <div class="control-block">
-            <label for="budget-range" class="range-label"><span>Area budget</span><output id="budget-percent" for="budget-range">100%</output></label>
+            <label for="budget-range" class="range-label"><span>面积预算</span><output id="budget-percent" for="budget-range">100%</output></label>
             <input type="range" id="budget-range" min="20" max="120" value="100" step="1">
-            <div class="range-ticks"><span>20%</span><span>of dedicated area</span><span>120%</span></div>
+            <div class="range-ticks"><span>20%</span><span>相对独立通路面积</span><span>120%</span></div>
             <p id="budget-value" class="micro-copy"></p>
           </div>
-          <button type="button" id="reset-lab" class="secondary-button reset-button">↺ Reset experiment</button>
-          <p class="control-footnote">Every value is a sum of measured whole datapaths. No surrogate predictions.</p>
+          <button type="button" id="reset-lab" class="secondary-button reset-button">↺ 重置实验</button>
+          <p class="control-footnote">面积由完整数据通路的测量值求和得到，不使用代理模型预测。</p>
         </aside>
 
         <div class="lab-workspace">
-          <section class="lab-summary" aria-label="Selected strategy summary" aria-live="polite">
-            <div class="summary-card"><span>Selected area</span><strong id="metric-area">—</strong><small>μm² · derived from measured units</small></div>
-            <div class="summary-card accent-card"><span>Area saved vs. dedicated</span><strong id="metric-saving">—</strong><small id="saving-caption">S14 · arithmetic FP4 reference</small></div>
-            <div class="summary-card"><span>Retained datapaths</span><strong id="metric-blocks">—</strong><small id="blocks-caption">Physical units in this strategy</small></div>
-            <div class="summary-card"><span>Strategies within budget</span><strong id="metric-feasible">—</strong><small id="budget-caption">Of all 18 paper templates</small></div>
+          <section class="lab-summary" aria-label="所选策略概览" aria-live="polite">
+            <div class="summary-card"><span>所选策略面积</span><strong id="metric-area">—</strong><small>μm² · 由单元测量值推导</small></div>
+            <div class="summary-card accent-card"><span>相比独立通路节省面积</span><strong id="metric-saving">—</strong><small id="saving-caption">S14 · 算术实现 FP4 基准</small></div>
+            <div class="summary-card"><span>保留的数据通路</span><strong id="metric-blocks">—</strong><small id="blocks-caption">当前策略中的物理单元</small></div>
+            <div class="summary-card"><span>预算内的策略数</span><strong id="metric-feasible">—</strong><small id="budget-caption">共 18 种论文策略模板</small></div>
           </section>
 
           <section class="panel routing-panel" aria-labelledby="routing-title">
             <div class="panel-heading">
-              <div><p class="eyebrow">02 / INSPECT THE SHARING</p><h2 id="routing-title">Inside your selected strategy</h2></div>
-              <span id="selection-badge" class="strategy-badge">S01 · Unified</span>
+              <div><p class="eyebrow">02 / 查看精度复用</p><h2 id="routing-title">所选策略的数据通路</h2></div>
+              <span id="selection-badge" class="strategy-badge">S01 · 统一复用</span>
             </div>
             <p id="strategy-description" class="section-description"></p>
-            <div class="sharing-presets" aria-label="Try a representative sharing strategy"><span>Try a strategy</span><button type="button" data-preset="s01" aria-pressed="true">Unified</button><button type="button" data-preset="s03" aria-pressed="false">FP / INT hybrid</button><button type="button" data-preset="s14" aria-pressed="false">Dedicated</button></div>
-            <div id="mode-tabs" class="mode-tabs" aria-label="Trace a precision through the hardware"></div>
-            <p class="micro-copy trace-caption">Click a precision to trace its shared hardware. Inactive formats stay inside retained shared units.</p>
+            <div class="sharing-presets" aria-label="尝试典型复用策略"><span>试试这些策略</span><button type="button" data-preset="s01" aria-pressed="true">统一复用</button><button type="button" data-preset="s03" aria-pressed="false">浮点 / 整数混合复用</button><button type="button" data-preset="s14" aria-pressed="false">独立通路</button></div>
+            <div id="mode-tabs" class="mode-tabs" aria-label="追踪精度对应的硬件通路"></div>
+            <p class="micro-copy trace-caption">点击精度，查看它复用的硬件。保留的共享单元仍包含未选精度的支持逻辑。</p>
             <div id="datapath-map" class="datapath-map"></div>
-            <div id="area-stack" class="area-stack" aria-label="Area contribution by retained datapath"></div>
+            <div id="area-stack" class="area-stack" aria-label="各保留数据通路的面积贡献"></div>
             <div class="map-footer"><span id="pruning-note"></span><strong id="selected-budget"></strong></div>
             <p id="strategy-note" class="strategy-note" hidden></p>
           </section>
 
           <section class="panel ranking-panel" aria-labelledby="ranking-title">
             <div class="panel-heading">
-              <div><p class="eyebrow">03 / EXPLORE THE DESIGN SPACE</p><h2 id="ranking-title">18 ways to share the silicon</h2></div>
-              <div class="action-buttons"><button type="button" id="copy-link" class="secondary-button">Copy experiment link</button><button type="button" id="export-csv" class="secondary-button">Export CSV ↓</button></div>
+              <div><p class="eyebrow">03 / 探索设计空间</p><h2 id="ranking-title">18 种精度复用方案</h2></div>
+              <div class="action-buttons"><button type="button" id="copy-link" class="secondary-button">复制实验链接</button><button type="button" id="export-csv" class="secondary-button">导出 CSV ↓</button></div>
             </div>
-            <div class="ranking-toolbar"><div class="family-tabs" aria-label="Filter strategies by family"><button type="button" data-family="all" class="active" aria-pressed="true">All 18</button><button type="button" data-family="unified" aria-pressed="false">Unified</button><button type="button" data-family="hybrid" aria-pressed="false">Hybrid</button><button type="button" data-family="dedicated" aria-pressed="false">Dedicated</button></div><span class="micro-copy">Sorted by area · click to inspect</span></div>
-            <div class="ranking-columns" aria-hidden="true"><span>STRATEGY / RETAINED GROUPS</span><span>AREA · μm²</span></div>
+            <div class="ranking-toolbar"><div class="family-tabs" aria-label="按复用类型筛选策略"><button type="button" data-family="all" class="active" aria-pressed="true">全部 18 种</button><button type="button" data-family="unified" aria-pressed="false">统一复用</button><button type="button" data-family="hybrid" aria-pressed="false">混合复用</button><button type="button" data-family="dedicated" aria-pressed="false">独立通路</button></div><span class="micro-copy">按面积排序 · 点击查看</span></div>
+            <div class="ranking-columns" aria-hidden="true"><span>策略 / 保留通路</span><span>面积 · μm²</span></div>
             <div id="strategy-ranking" class="strategy-ranking"></div>
-            <div class="ranking-legend"><span><i class="legend-dot unified"></i> Unified</span><span><i class="legend-dot hybrid"></i> Hybrid</span><span><i class="legend-dot dedicated"></i> Dedicated</span><span><i class="budget-mark"></i> Budget threshold</span></div>
+            <div class="ranking-legend"><span><i class="legend-dot unified"></i> 统一复用</span><span><i class="legend-dot hybrid"></i> 混合复用</span><span><i class="legend-dot dedicated"></i> 独立通路</span><span><i class="budget-mark"></i> 预算阈值</span></div>
             <p id="ranking-insight" class="ranking-insight"></p>
           </section>
           <details class="panel methodology">
-            <summary>What is measured, and what changes when I click?</summary>
+            <summary>哪些数值来自测量？点击后会改变什么？</summary>
             <div>
-              <p><strong>18 templates, 630 derived points.</strong> The strategies use the paper’s original datapath composition, evaluated at five base K values and seven clock targets. Their area is the sum of constituent unit areas in the released <code>dp_training.csv</code>; this is not a separately synthesized multi-unit wrapper.</p>
-              <p><strong>Whole-datapath pruning.</strong> Deselecting formats removes only datapaths that support none of your required formats. A shared unit keeps its full measured area and its extra format support. Overlapping format support can retain multiple units; this is a projection of each template, not a new optimal circuit. With all formats enabled, the full original composition is retained.</p>
-              <p><strong>A consistent reference.</strong> Savings and the budget use S14, the dedicated arithmetic-FP4 strategy, under the same selected formats, K and clock. LUT-FP4 strategies are explicit alternatives. Negative savings mean the selected template is larger than this reference.</p>
-              <p><strong>Scope of the comparison.</strong> TSMC 22 nm, DC synthesis, released unit measurements. These are the 18 paper templates applied to the bundled measurements; percentages may differ from later clock-gated paper figures. The bundled CSV does not record a gating setting. Clock is a synthesis target; this CSV does not establish timing closure. Area excludes additional integration/interconnect overhead. K follows the paper’s per-format lane scaling, and this page makes no system-throughput or runtime-power claim.</p>
-              <p><strong>Traceable measurements.</strong> Expand any datapath card for its exact CSV line, variant, normalization, accumulator, output and intermediate width. S07, S12 and S16 retain the actual extra BF16 unit even though an older legend omitted BF16 from their shared group.</p>
+              <p><strong>18 种模板，630 个推导结果。</strong> 策略沿用论文的原始数据通路组合，在五种基础 K 和七个目标频率下计算。面积由已发布的 <code>dp_training.csv</code> 中各组成单元的面积相加得到，并非对完整多单元设计重新综合后的测量值。</p>
+              <p><strong>按完整通路裁剪。</strong> 取消精度时，仅移除与所需精度完全无关的数据通路。共享单元保留完整的测量面积，以及它支持的其他精度。若多个单元支持同一精度，它们可能同时被保留；这里展示的是原模板在当前需求下的组合结果，不代表重新优化后的电路。选择全部精度时，完整保留原始组合。</p>
+              <p><strong>统一比较基准。</strong> 面积节省比例和预算均以相同精度需求、K 和频率下的 S14 为基准；S14 使用独立通路及算术实现的 FP4。FP4 查找表策略作为另一种实现单独展示。节省比例为负表示所选策略的面积大于基准。</p>
+              <p><strong>比较范围。</strong> 数据来自 TSMC 22 nm 工艺下的 DC 综合及已发布的单元测量。这里将论文的 18 种模板应用于仓库附带数据，百分比可能与后续采用时钟门控的论文图表不同；附带 CSV 未记录门控设置。频率是综合目标，CSV 无法证明时序收敛。面积不含额外的集成与互连开销。K 沿用论文中各精度的并行度配置，本页不据此推断系统吞吐或运行功耗。</p>
+              <p><strong>可追溯的测量数据。</strong> 展开任意数据通路卡片，可查看对应的 CSV 行号、配置名、归一化、累加器、输出及中间位宽。S07、S12 和 S16 保留实际存在的额外 BF16 单元；较早的图例曾省略共享组内的 BF16。</p>
             </div>
           </details>
         </div>
       </div>
-      <footer class="lab-footer"><span>TENSORFORGE</span> A small architectural choice. A measurable silicon cost.</footer>
+      <footer class="lab-footer"><span>TENSORFORGE</span> 架构选择的每一步，都能看到面积代价。</footer>
     </main>
     <script type="module" src="/reuse.js"></script>
   </body>
