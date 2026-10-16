@@ -190,8 +190,11 @@ Use the navigation bar at the top of the site to open:
 - **PPA Explorer** for area-versus-power scatter plots across measured units and measured arrays.
 - **Baseline Compare** for side-by-side comparison between prior designs and TensorForge-generated points.
 - **Breakdown** for component-level area decomposition views.
+- **Precision Reuse Lab** for hands-on area DSE across the paper’s 18 sharing templates: select required formats, K and clock target; compare unified, hybrid and dedicated datapaths; set an area budget; inspect exact constituent sources; share an experiment link or export CSV.
 
 Together, these pages provide both query-oriented inspection and global visual analysis of the released synthesis results.
+
+Open the lab at `http://127.0.0.1:8000/reuse.html`. It uses the released unit measurements in `dp_training.csv`, with 18 templates × 5 base K values × 7 clock targets = 630 derived design points. Area is a sum of exact constituent units, excluding additional integration overhead. Deselecting a format removes only whole datapaths that support none of the remaining required formats; retained shared units keep their full measured area. The reference is dedicated arithmetic strategy S14 at the same operating point and format requirements. The bundled data is distinct from later clock-gated paper figures and does not certify timing closure.
 
 ## Open Cost Model
 
@@ -337,5 +340,4 @@ When a queried design point does not have a directly released measurement, the e
 Beyond raw RTL and synthesis outputs, TensorForge releases **actionable design rules** extracted from the full synthesis campaign. These rules summarize how compute-unit organization, precision composition, and resource-sharing choices shape area and power efficiency across the explored design space.
 
 In other words, the repository is intended not only to reproduce numbers, but also to help researchers and hardware designers reuse the lessons behind those numbers.
-
 

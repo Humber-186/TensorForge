@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Explore 18 TensorForge precision-sharing strategies using released synthesis measurements. Select formats, inspect datapaths, and compare silicon area.">
+    <title>Precision Reuse Lab · TensorForge</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="stylesheet" href="/reuse.css">
+  </head>
+  <body class="reuse-page">
+    <main class="layout reuse-layout">
+      <nav class="top-nav" aria-label="Main navigation">
+        <a href="/index.html">Query</a>
+        <a href="/ppa.html">PPA Explorer</a>
+        <a href="/baseline.html">Baseline Compare</a>
+        <a href="/breakdown.html">Breakdown</a>
+        <a href="/reuse.html" aria-current="page">Precision Reuse Lab <span class="nav-new">LAB</span></a>
+      </nav>
+
+      <header class="lab-hero">
+        <div>
+          <p class="eyebrow"><span class="live-dot"></span> TENSORFORGE / INTERACTIVE DSE</p>
+          <h1>Many precisions.<br>How much silicon?</h1>
+          <p class="hero-description">Choose the formats. Explore the sharing.<br>See what each datapath costs.</p>
+        </div>
+        <div class="hero-facts">
+          <div><strong>18</strong><span>paper sharing strategies</span></div>
+          <div><strong id="operating-count">35</strong><span>K × clock operating points</span></div>
+          <p><span class="live-dot"></span> TSMC 22 nm · DC synthesis<br>Released unit measurements</p>
+        </div>
+      </header>
+
+      <div id="load-status" class="lab-status" role="status">Loading synthesis measurements…</div>
+      <div id="lab" class="lab-grid" hidden>
+        <aside class="lab-controls panel" aria-label="Experiment controls">
+          <div class="section-heading"><span class="step-number">01</span><h2>Define your core</h2></div>
+          <p class="control-intro">Start with a scenario, then make it yours.</p>
+          <div class="scenario-list" aria-label="Example scenarios">
+            <button type="button" data-scenario="all" class="scenario active" aria-pressed="true"><span>General purpose</span><small>All seven formats</small><span aria-hidden="true">↗</span></button>
+            <button type="button" data-scenario="float" class="scenario" aria-pressed="false"><span>Floating-point inference</span><small>FP16 + BF16 + MXFP8/6/4</small><span aria-hidden="true">↗</span></button>
+            <button type="button" data-scenario="low" class="scenario" aria-pressed="false"><span>Low-bit inference</span><small>MXFP8 + MXFP4 + INT8/4</small><span aria-hidden="true">↗</span></button>
+          </div>
+          <fieldset class="format-fieldset"><legend>Required precision support</legend><div id="format-toggles" class="format-toggles"></div></fieldset>
+          <div class="control-block">
+            <label for="k-range" class="range-label"><span>Base inner-product K</span><output id="k-value" for="k-range">32</output></label>
+            <input type="range" id="k-range" min="0" max="4" value="4" step="1">
+            <div id="k-ticks" class="range-ticks" aria-hidden="true"></div>
+            <p class="micro-copy">Low-bit datapaths use the paper’s 2K / 4K lane scaling.</p>
+          </div>
+          <label class="control-block" for="clock-select">Synthesis clock target <select id="clock-select"></select></label>
+          <div class="control-block">
+            <label for="budget-range" class="range-label"><span>Area budget</span><output id="budget-percent" for="budget-range">100%</output></label>
+            <input type="range" id="budget-range" min="20" max="120" value="100" step="1">
+            <div class="range-ticks"><span>20%</span><span>of dedicated area</span><span>120%</span></div>
+            <p id="budget-value" class="micro-copy"></p>
+          </div>
+          <button type="button" id="reset-lab" class="secondary-button reset-button">↺ Reset experiment</button>
+          <p class="control-footnote">Every value is a sum of measured whole datapaths. No surrogate predictions.</p>
+        </aside>
+
+        <div class="lab-workspace">
+          <section class="lab-summary" aria-label="Selected strategy summary" aria-live="polite">
+            <div class="summary-card"><span>Selected area</span><strong id="metric-area">—</strong><small>μm² · derived from measured units</small></div>
+            <div class="summary-card accent-card"><span>Area saved vs. dedicated</span><strong id="metric-saving">—</strong><small id="saving-caption">S14 · arithmetic FP4 reference</small></div>
+            <div class="summary-card"><span>Retained datapaths</span><strong id="metric-blocks">—</strong><small id="blocks-caption">Physical units in this strategy</small></div>
+            <div class="summary-card"><span>Strategies within budget</span><strong id="metric-feasible">—</strong><small id="budget-caption">Of all 18 paper templates</small></div>
+          </section>
+
+          <section class="panel routing-panel" aria-labelledby="routing-title">
+            <div class="panel-heading">
+              <div><p class="eyebrow">02 / INSPECT THE SHARING</p><h2 id="routing-title">Inside your selected strategy</h2></div>
+              <span id="selection-badge" class="strategy-badge">S01 · Unified</span>
+            </div>
+            <p id="strategy-description" class="section-description"></p>
+            <div class="sharing-presets" aria-label="Try a representative sharing strategy"><span>Try a strategy</span><button type="button" data-preset="s01" aria-pressed="true">Unified</button><button type="button" data-preset="s03" aria-pressed="false">FP / INT hybrid</button><button type="button" data-preset="s14" aria-pressed="false">Dedicated</button></div>
+            <div id="mode-tabs" class="mode-tabs" aria-label="Trace a precision through the hardware"></div>
+            <p class="micro-copy trace-caption">Click a precision to trace its shared hardware. Inactive formats stay inside retained shared units.</p>
+            <div id="datapath-map" class="datapath-map"></div>
+            <div id="area-stack" class="area-stack" aria-label="Area contribution by retained datapath"></div>
+            <div class="map-footer"><span id="pruning-note"></span><strong id="selected-budget"></strong></div>
+            <p id="strategy-note" class="strategy-note" hidden></p>
+          </section>
+
+          <section class="panel ranking-panel" aria-labelledby="ranking-title">
+            <div class="panel-heading">
+              <div><p class="eyebrow">03 / EXPLORE THE DESIGN SPACE</p><h2 id="ranking-title">18 ways to share the silicon</h2></div>
+              <div class="action-buttons"><button type="button" id="copy-link" class="secondary-button">Copy experiment link</button><button type="button" id="export-csv" class="secondary-button">Export CSV ↓</button></div>
+            </div>
+            <div class="ranking-toolbar"><div class="family-tabs" aria-label="Filter strategies by family"><button type="button" data-family="all" class="active" aria-pressed="true">All 18</button><button type="button" data-family="unified" aria-pressed="false">Unified</button><button type="button" data-family="hybrid" aria-pressed="false">Hybrid</button><button type="button" data-family="dedicated" aria-pressed="false">Dedicated</button></div><span class="micro-copy">Sorted by area · click to inspect</span></div>
+            <div class="ranking-columns" aria-hidden="true"><span>STRATEGY / RETAINED GROUPS</span><span>AREA · μm²</span></div>
+            <div id="strategy-ranking" class="strategy-ranking"></div>
+            <div class="ranking-legend"><span><i class="legend-dot unified"></i> Unified</span><span><i class="legend-dot hybrid"></i> Hybrid</span><span><i class="legend-dot dedicated"></i> Dedicated</span><span><i class="budget-mark"></i> Budget threshold</span></div>
+            <p id="ranking-insight" class="ranking-insight"></p>
+          </section>
+          <details class="panel methodology">
+            <summary>What is measured, and what changes when I click?</summary>
+            <div>
+              <p><strong>18 templates, 630 derived points.</strong> The strategies use the paper’s original datapath composition, evaluated at five base K values and seven clock targets. Their area is the sum of constituent unit areas in the released <code>dp_training.csv</code>; this is not a separately synthesized multi-unit wrapper.</p>
+              <p><strong>Whole-datapath pruning.</strong> Deselecting formats removes only datapaths that support none of your required formats. A shared unit keeps its full measured area and its extra format support. Overlapping format support can retain multiple units; this is a projection of each template, not a new optimal circuit. With all formats enabled, the full original composition is retained.</p>
+              <p><strong>A consistent reference.</strong> Savings and the budget use S14, the dedicated arithmetic-FP4 strategy, under the same selected formats, K and clock. LUT-FP4 strategies are explicit alternatives. Negative savings mean the selected template is larger than this reference.</p>
+              <p><strong>Scope of the comparison.</strong> TSMC 22 nm, DC synthesis, released unit measurements. These are the 18 paper templates applied to the bundled measurements; percentages may differ from later clock-gated paper figures. The bundled CSV does not record a gating setting. Clock is a synthesis target; this CSV does not establish timing closure. Area excludes additional integration/interconnect overhead. K follows the paper’s per-format lane scaling, and this page makes no system-throughput or runtime-power claim.</p>
+              <p><strong>Traceable measurements.</strong> Expand any datapath card for its exact CSV line, variant, normalization, accumulator, output and intermediate width. S07, S12 and S16 retain the actual extra BF16 unit even though an older legend omitted BF16 from their shared group.</p>
+            </div>
+          </details>
+        </div>
+      </div>
+      <footer class="lab-footer"><span>TENSORFORGE</span> A small architectural choice. A measurable silicon cost.</footer>
+    </main>
+    <script type="module" src="/reuse.js"></script>
+  </body>
+</html>

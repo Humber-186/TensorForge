@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from .query import ExplorerQueryEngine
+from .reuse import load_reuse_data
 
 WEB_ROOT = Path(__file__).resolve().parents[2] / "web" / "area_power_explorer"
 ROOT = Path(__file__).resolve().parents[2]
@@ -219,6 +220,14 @@ class ExplorerHandler(BaseHTTPRequestHandler):
             return
         if parsed.path == "/api/ppa-data":
             self._send_json(_api_ppa_data(self._db_path))
+            return
+        if parsed.path == "/api/reuse-data":
+            try:
+                payload = load_reuse_data()
+            except (OSError, ValueError) as exc:
+                self._send_json({"error": str(exc)}, status=500)
+                return
+            self._send_json(payload)
             return
         if parsed.path == "/api/baseline-data":
             self._send_json(_api_baseline_data())
