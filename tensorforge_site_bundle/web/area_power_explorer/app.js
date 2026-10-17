@@ -78,7 +78,8 @@ function refreshOptions() {
   setSelectOptions(document.getElementById('acc-kind'), options.acc_kind, 'FP32');
   setSelectOptions(document.getElementById('out-kind'), options.out_kind, 'FP32',
     (value) => ({ value, label: precisionLabel(value) }));
-  setSelectOptions(document.getElementById('midmat-select'), options.midmat, 26);
+  setSelectOptions(document.getElementById('midmat-select'), options.midmat, 26,
+    (value) => ({ value: String(value), label: value > 0 ? String(value) : t('option.midmatMarker', {value}) }));
   setSelectOptions(document.getElementById('mx-select'), options.mx, 0, (value) => ({ value: String(value), label: t(value ? 'option.enabled' : 'option.disabled') }));
   setSelectOptions(document.getElementById('nv-select'), options.nv, 0, (value) => ({ value: String(value), label: t(value ? 'option.enabled' : 'option.disabled') }));
   setSelectOptions(document.getElementById('allow-predicted'), options.allow_predicted, 1, (value) => ({ value: String(value), label: t(value ? 'option.predicted' : 'option.measured') }));

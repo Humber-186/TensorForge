@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="color-scheme" content="light dark">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="基于已发布的综合测量数据，探索 TensorForge 论文中的 18 种精度复用策略。选择精度、查看数据通路，并比较芯片面积。">
+    <meta name="description" content="选择所需数据格式，比较 TensorForge 的 18 种硬件复用方案及其面积。">
     <title>精度复用实验室 · TensorForge</title>
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./reuse.css">
@@ -13,71 +13,71 @@
     <main class="layout reuse-layout">
       <nav class="top-nav" aria-label="主导航">
         <a href="./index.html">配置查询</a>
-        <a href="./ppa.html">PPA 探索</a>
-        <a href="./baseline.html">基线对比</a>
-        <a href="./breakdown.html">面积分解</a>
+        <a href="./ppa.html">面积与功耗</a>
+        <a href="./baseline.html">基准对比</a>
+        <a href="./breakdown.html">模块面积</a>
         <a href="./reuse.html" aria-current="page">精度复用实验室 <span class="nav-new">实验</span></a>
       </nav>
 
       <header class="lab-hero">
         <div>
           <h1>多种精度，<br>面积如何取舍？</h1>
-          <p class="hero-description">选精度，切换复用策略。<br>看清每条数据通路的面积代价。</p>
+          <p class="hero-description">选择所需格式，比较复用方案。<br>看清每条硬件通路占多少面积。</p>
         </div>
         <div class="hero-facts">
-          <div><strong>18</strong><span>种论文复用策略</span></div>
-          <div><strong id="operating-count">35</strong><span>组 K × 频率操作点</span></div>
-          <p><span class="live-dot"></span> TSMC 22 nm · DC 综合<br>时钟门控单元测量数据</p>
+          <div><strong>18</strong><span>种复用方案</span></div>
+          <div><strong id="operating-count">35</strong><span>组 K 与频率组合</span></div>
+          <p><span class="live-dot"></span> TSMC 22 nm · DC 综合<br>时钟门控设计的综合数据</p>
         </div>
       </header>
 
-      <div id="load-status" class="lab-status" role="status">正在加载综合测量数据…</div>
+      <div id="load-status" class="lab-status" role="status">正在加载综合数据…</div>
       <div id="lab" class="lab-grid" hidden>
         <aside class="lab-controls panel" aria-label="实验设置">
-          <div class="section-heading"><h2>定义你的计算核心</h2></div>
-          <p class="control-intro">从示例场景出发，调整为你的需求。</p>
+          <div class="section-heading"><h2>选择计算需求</h2></div>
+          <p class="control-intro">选一个场景，或直接勾选数据格式。</p>
           <div class="scenario-list" aria-label="示例场景">
-            <button type="button" data-scenario="all" class="scenario active" aria-pressed="true"><span>通用计算</span><small>全部七种精度</small><span aria-hidden="true">↗</span></button>
+            <button type="button" data-scenario="all" class="scenario active" aria-pressed="true"><span>通用计算</span><small>全部七种格式</small><span aria-hidden="true">↗</span></button>
             <button type="button" data-scenario="float" class="scenario" aria-pressed="false"><span>浮点推理</span><small>FP16 + BF16 + MXFP8/6/4</small><span aria-hidden="true">↗</span></button>
             <button type="button" data-scenario="low" class="scenario" aria-pressed="false"><span>低比特推理</span><small>MXFP8 + MXFP4 + INT8/4</small><span aria-hidden="true">↗</span></button>
           </div>
-          <fieldset class="format-fieldset"><legend>需要支持的精度</legend><div id="format-toggles" class="format-toggles"></div></fieldset>
+          <fieldset class="format-fieldset"><legend>需要支持的数据格式</legend><div id="format-toggles" class="format-toggles"></div></fieldset>
           <div class="control-block">
-            <label for="k-range" class="range-label"><span>基础内积长度 K</span><output id="k-value" for="k-range">32</output></label>
+            <label for="k-range" class="range-label"><span>基础点积长度 K</span><output id="k-value" for="k-range">32</output></label>
             <input type="range" id="k-range" min="0" max="4" value="4" step="1">
             <div id="k-ticks" class="range-ticks" aria-hidden="true"></div>
-            <p class="micro-copy">低比特通路沿用论文中的 2K / 4K 并行度配置。</p>
+            <p class="micro-copy">各通路的实际 K 为所选值的 1、2 或 4 倍，沿用论文配置。</p>
           </div>
-          <label class="control-block" for="clock-select">综合目标频率 <select id="clock-select"></select></label>
+          <label class="control-block" for="clock-select">目标频率 <select id="clock-select"></select></label>
           <div class="control-block">
             <label for="budget-range" class="range-label"><span>面积预算</span><output id="budget-percent" for="budget-range">100%</output></label>
             <input type="range" id="budget-range" min="20" max="120" value="100" step="1">
-            <div class="range-ticks"><span>20%</span><span>相对独立通路面积</span><span>120%</span></div>
+            <div class="range-ticks"><span>20%</span><span>以 S14 为 100%</span><span>120%</span></div>
             <p id="budget-value" class="micro-copy"></p>
           </div>
           <button type="button" id="reset-lab" class="secondary-button reset-button">↺ 重置实验</button>
-          <p class="control-footnote">面积由完整数据通路的测量值求和得到，不使用代理模型预测。</p>
+          <p class="control-footnote">按综合得到的单元面积求和，共享单元按完整面积计算。</p>
         </aside>
 
         <div class="lab-workspace">
-          <section class="lab-summary" aria-label="所选策略概览" aria-live="polite">
-            <div class="summary-card"><span>所选策略面积</span><strong id="metric-area">—</strong><small>μm² · 由单元测量值推导</small></div>
-            <div class="summary-card accent-card"><span>相比独立通路节省面积</span><strong id="metric-saving">—</strong><small id="saving-caption">S14 · 算术实现 FP4 基准</small></div>
-            <div class="summary-card"><span>保留的数据通路</span><strong id="metric-blocks">—</strong><small id="blocks-caption">当前策略中的物理单元</small></div>
-            <div class="summary-card"><span>预算内的策略数</span><strong id="metric-feasible">—</strong><small id="budget-caption">共 18 种论文策略模板</small></div>
+          <section class="lab-summary" aria-label="当前方案概览" aria-live="polite">
+            <div class="summary-card"><span>当前方案面积</span><strong id="metric-area">—</strong><small>μm² · 按单元面积求和</small></div>
+            <div class="summary-card accent-card"><span>相对 S14 节省面积</span><strong id="metric-saving">—</strong><small id="saving-caption">S14：各格式独立，FP4 用算术电路</small></div>
+            <div class="summary-card"><span>保留通路数</span><strong id="metric-blocks">—</strong><small id="blocks-caption">当前方案中的硬件单元</small></div>
+            <div class="summary-card"><span>预算内方案</span><strong id="metric-feasible">—</strong><small id="budget-caption">共 18 种复用方案</small></div>
           </section>
 
           <section class="panel routing-panel" aria-labelledby="routing-title">
             <div class="panel-heading">
-              <div><h2 id="routing-title">所选策略的数据通路</h2></div>
+              <div><h2 id="routing-title">当前方案的数据通路</h2></div>
               <span id="selection-badge" class="strategy-badge">S01 · 统一复用</span>
             </div>
             <p id="strategy-description" class="section-description"></p>
-            <div class="sharing-presets" aria-label="尝试典型复用策略"><span>试试这些策略</span><button type="button" data-preset="s01" aria-pressed="true">统一复用</button><button type="button" data-preset="s03" aria-pressed="false">浮点 / 整数混合复用</button><button type="button" data-preset="s14" aria-pressed="false">独立通路</button></div>
-            <div id="mode-tabs" class="mode-tabs" aria-label="追踪精度对应的硬件通路"></div>
-            <p class="micro-copy trace-caption">点击精度，查看它复用的硬件。保留的共享单元仍包含未选精度的支持逻辑。</p>
+            <div class="sharing-presets" aria-label="典型复用方案"><span>快速比较</span><button type="button" data-preset="s01" aria-pressed="true">统一复用</button><button type="button" data-preset="s03" aria-pressed="false">浮点、整数分组复用</button><button type="button" data-preset="s14" aria-pressed="false">独立通路</button></div>
+            <div id="mode-tabs" class="mode-tabs" aria-label="高亮数据格式对应的通路"></div>
+            <p class="micro-copy trace-caption">点击格式可高亮对应通路。若所需格式仍使用某条共享通路，就保留整条通路。</p>
             <div id="datapath-map" class="datapath-map"></div>
-            <div id="area-stack" class="area-stack" aria-label="各保留数据通路的面积贡献"></div>
+            <div id="area-stack" class="area-stack" aria-label="各通路占用的面积"></div>
             <div class="map-footer"><span id="pruning-note"></span><strong id="selected-budget"></strong></div>
             <p id="strategy-note" class="strategy-note" hidden></p>
           </section>
@@ -87,25 +87,25 @@
               <div><h2 id="ranking-title">18 种精度复用方案</h2></div>
               <div class="action-buttons"><button type="button" id="copy-link" class="secondary-button">复制实验链接</button><button type="button" id="export-csv" class="secondary-button">导出 CSV ↓</button></div>
             </div>
-            <div class="ranking-toolbar"><div class="family-tabs" aria-label="按复用类型筛选策略"><button type="button" data-family="all" class="active" aria-pressed="true">全部 18 种</button><button type="button" data-family="unified" aria-pressed="false">统一复用</button><button type="button" data-family="hybrid" aria-pressed="false">混合复用</button><button type="button" data-family="dedicated" aria-pressed="false">独立通路</button></div><span class="micro-copy">按面积排序 · 点击查看</span></div>
-            <div class="ranking-columns" aria-hidden="true"><span>策略 / 保留通路</span><span>面积 · μm²</span></div>
+            <div class="ranking-toolbar"><div class="family-tabs" aria-label="按复用方式筛选方案"><button type="button" data-family="all" class="active" aria-pressed="true">全部 18 种</button><button type="button" data-family="unified" aria-pressed="false">统一复用</button><button type="button" data-family="hybrid" aria-pressed="false">分组复用</button><button type="button" data-family="dedicated" aria-pressed="false">独立通路</button></div><span class="micro-copy">按面积排序 · 点击查看</span></div>
+            <div class="ranking-columns" aria-hidden="true"><span>方案 / 保留通路</span><span>面积 · μm²</span></div>
             <div id="strategy-ranking" class="strategy-ranking"></div>
-            <div class="ranking-legend"><span><i class="legend-dot unified"></i> 统一复用</span><span><i class="legend-dot hybrid"></i> 混合复用</span><span><i class="legend-dot dedicated"></i> 独立通路</span><span><i class="budget-mark"></i> 预算阈值</span></div>
+            <div class="ranking-legend"><span><i class="legend-dot unified"></i> 统一复用</span><span><i class="legend-dot hybrid"></i> 分组复用</span><span><i class="legend-dot dedicated"></i> 独立通路</span><span><i class="budget-mark"></i> 面积预算</span></div>
             <p id="ranking-insight" class="ranking-insight"></p>
           </section>
           <details class="panel methodology">
-            <summary>哪些数值来自测量？点击后会改变什么？</summary>
+            <summary>数据怎么算？哪些开销没有计入？</summary>
             <div>
-              <p><strong>18 种模板，630 个推导结果。</strong> 策略沿用论文的原始数据通路组合，在五种基础 K 和七个目标频率下计算。面积由已发布的 <code>clock_gated_area_power_measurements.csv</code> 中各组成单元的面积相加得到，并非对完整多单元设计重新综合后的测量值。</p>
-              <p><strong>按完整通路裁剪。</strong> 取消精度时，仅移除与所需精度完全无关的数据通路。共享单元保留完整的测量面积，以及它支持的其他精度。若多个单元支持同一精度，它们可能同时被保留；这里展示的是原模板在当前需求下的组合结果，不代表重新优化后的电路。选择全部精度时，完整保留原始组合。</p>
-              <p><strong>统一比较基准。</strong> 面积节省比例和预算均以相同精度需求、K 和频率下的 S14 为基准；S14 使用独立通路及算术实现的 FP4。FP4 查找表策略作为另一种实现单独展示。节省比例为负表示所选策略的面积大于基准。</p>
-              <p><strong>比较范围。</strong> 数据来自 TSMC 22 nm 工艺下的 DC 综合及已发布的单元测量。这里将论文的 18 种模板应用于当前时钟门控综合数据，与配置查询采用同一份数据。频率是综合目标，CSV 无法证明时序收敛。面积不含额外的集成与互连开销。K 沿用论文中各精度的并行度配置，本页不据此推断系统吞吐或运行功耗。</p>
-              <p><strong>可追溯的测量数据。</strong> 展开任意数据通路卡片，可查看对应的 CSV 行号、配置名、归一化、累加器、输出及中间位宽。S07、S12 和 S16 保留实际存在的额外 BF16 单元；较早的图例曾省略共享组内的 BF16。</p>
+              <p><strong>数据来源。</strong> 18 种方案沿用论文的硬件组合，覆盖 5 种 K、7 个目标频率，共 630 个组合。面积为 <code>clock_gated_area_power_measurements.csv</code> 中各组成单元的面积之和，未重新综合完整设计。</p>
+              <p><strong>取消格式后。</strong> 只移除无用通路；仍在使用的共享通路按完整面积计算。两个单元若都支持所需格式，也可能同时保留，不会自动合并或重新设计电路。</p>
+              <p><strong>比较基准。</strong> S14 为各格式独立、FP4 用算术电路的方案。面积节省比例和预算，都与相同格式、K、频率下的 S14 比较；节省比例为负表示面积更大。</p>
+              <p><strong>比较范围。</strong> 数据与配置查询页一致，来自 TSMC 22 nm 工艺的时钟门控综合。面积未计入额外的集成与互连开销。目标频率不代表已通过时序检查；不同通路的实际 K 可能不同，不能据此推断整体吞吐或运行功耗。</p>
+              <p><strong>查看原始数据。</strong> 展开通路详情，可查看 CSV 行号、配置名、数据格式及中间累加位宽。S07、S12、S16 各有两条支持 BF16 的通路，均按论文组合保留。</p>
             </div>
           </details>
         </div>
       </div>
-      <footer class="lab-footer"><span>TENSORFORGE</span> 架构选择的每一步，都能看到面积代价。</footer>
+      <footer class="lab-footer"><span>TENSORFORGE</span> 比较硬件复用方式，理解面积差异。</footer>
     </main>
     <script type="module" src="./reuse.js"></script>
   </body>

@@ -171,7 +171,7 @@ try {
   const initialConfig = await evaluate('JSON.stringify(Object.fromEntries([...document.getElementById("query-form").elements].filter(e => e.name).map(e => [e.name,e.value])))');
   await evaluate('document.getElementById("language-toggle").click()');
   assert.equal(await evaluate('document.documentElement.lang'), 'zh-CN');
-  assert.ok(await evaluate('document.getElementById("result-cards").textContent.includes("综合阵列数据")'));
+  assert.ok(await evaluate('document.getElementById("result-cards").textContent.includes("阵列综合结果")'));
   assert.equal(await evaluate('JSON.stringify(Object.fromEntries([...document.getElementById("query-form").elements].filter(e => e.name).map(e => [e.name,e.value])))'), initialConfig);
   await evaluate('document.querySelector(".help-button").focus()');
   assert.equal(await evaluate('getComputedStyle(document.querySelector(".tooltip")).visibility'), 'visible');
@@ -209,7 +209,7 @@ try {
   await evaluate('document.querySelector("#baseline-chart rect").dispatchEvent(new Event("mouseenter")); document.getElementById("language-toggle").click()');
   assert.equal(await evaluate('document.documentElement.lang'), 'zh-CN');
   await evaluate('document.querySelector("#baseline-chart rect").dispatchEvent(new Event("mouseenter"))');
-  assert.ok(await evaluate('document.getElementById("baseline-detail").textContent.includes("基线")'));
+  assert.ok(await evaluate('document.getElementById("baseline-detail").textContent.includes("基准")'));
   await screenshot('baseline-zh-light');
   await visit('breakdown.html', 'document.querySelectorAll("#breakdown-chart path").length === 18');
   assert.ok(await evaluate('document.getElementById("breakdown-series").selectedOptions[0].textContent.includes("SM 顶层")'));

@@ -118,7 +118,7 @@ try {
   const csv = await readFile(await download.path(), 'utf8');
   assert.equal(csv.trim().split('\r\n').length, 19);
   assert.match(csv, /来源行号/);
-  assert.match(csv, /整条通路裁剪/);
+  assert.match(csv, /移除无用通路/);
   await page.locator('#reset-lab').click();
   await setRange('budget-range', 20);
   assert.equal(await scalar('metric-feasible'), '0 / 18');

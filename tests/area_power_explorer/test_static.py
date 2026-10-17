@@ -104,7 +104,7 @@ class StaticExportTests(unittest.TestCase):
         messages = json.loads(result.stdout)
         self.assertEqual(messages['en'], messages['zh'])
         self.assertIn('INT4', messages['norm4'])
-        self.assertEqual(messages['source'], '综合阵列数据')
+        self.assertEqual(messages['source'], '阵列综合结果')
         self.assertEqual(messages['precision'], 'FP16 / BF16 / FP8 / FP6 / FP4')
         self.assertEqual(messages['scaled'], 'MX · FP16 / BF16 / FP8 / FP6 / FP4')
         self.assertEqual(messages['original'], 'FP8FP62FP4')

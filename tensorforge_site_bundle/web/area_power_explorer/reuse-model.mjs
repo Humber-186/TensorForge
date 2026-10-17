@@ -27,7 +27,7 @@ function composePoint({strategy, k, clock, units}) {
 
 export function buildReusePoints(catalog) {
   if (catalog?.schema_version !== 1 || catalog.strategies?.length !== STRATEGY_COUNT || !Array.isArray(catalog.units)) {
-    throw new Error('静态复用数据格式不符合预期，请重新构建站点');
+    throw new Error('复用数据格式错误，请重新构建站点');
   }
   const units = new Map(catalog.units.map(unit => [`${unit.precision_name}:${unit.dim_k}:${unit.clk_mhz}`, unit]));
   return catalog.strategies.flatMap(strategy => catalog.ks.flatMap(k =>
