@@ -1,3 +1,9 @@
+@font-face {
+  font-family: TensorForgeChinese;
+  src: url("./fonts/noto-sans-sc.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap;
+}
 :root {
   color-scheme: light dark;
   --bg: #f3f6fb;
@@ -56,9 +62,10 @@
   }
 }
 * { box-sizing: border-box; }
+button, input, select, textarea { font: inherit; }
 body {
   margin: 0;
-  font-family: Inter, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+  font-family: Inter, TensorForgeChinese, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
 }

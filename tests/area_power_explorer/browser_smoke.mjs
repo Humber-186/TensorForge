@@ -18,7 +18,7 @@ const profile = await mkdtemp(join(tmpdir(), 'tensorforge-chrome-'));
 const requests = [];
 const missingAssets = [];
 const exceptions = [];
-const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript' };
+const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.mjs': 'text/javascript', '.woff2': 'font/woff2' };
 const server = createServer(async (request, response) => {
   const path = new URL(request.url, 'http://localhost').pathname;
   requests.push(path);
@@ -73,6 +73,7 @@ async function visit(page, ready) {
   console.log(`Checking ${page}`);
   await call('Page.navigate', { url: base + page });
   await poll(() => evaluate(`location.pathname.endsWith(${JSON.stringify(page)}) && (${ready})`), page);
+  await evaluate('document.fonts.ready.then(() => true)');
   assert.equal(await evaluate('document.querySelectorAll(".top-nav [aria-current=page]").length'), 1);
 }
 
@@ -257,6 +258,23 @@ try {
   assert.ok(await evaluate('document.getElementById("baseline-chart").textContent.includes("Dot-product length")'));
   await screenshot('baseline-en-dark-small');
   console.log('PASS: readable responsive charts, touch details, and viewport resizing');
+  await call('Emulation.setDeviceMetricsOverride', { width: 1280, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await visit('reuse.html', '!document.getElementById("lab").hidden');
+  assert.equal(await evaluate('document.getElementById("metric-area").textContent'), '50,095');
+  assert.equal(await evaluate('document.getElementById("metric-saving").textContent'), '56.8%');
+  assert.equal(await evaluate('document.querySelectorAll(".strategy-row").length'), 18);
+  await evaluate('document.querySelector("[data-preset=s14]").click()');
+  assert.equal(await evaluate('document.querySelectorAll(".datapath-card").length'), 7);
+  await evaluate('document.querySelector("[data-scenario=low]").click()');
+  assert.equal(await evaluate('document.querySelectorAll(".format-chip input:checked").length'), 4);
+  await evaluate('document.getElementById("reset-lab").click()');
+  await screenshot('reuse-zh-dark');
+  await theme('light');
+  await screenshot('reuse-zh-light');
+  await call('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+  assert.ok(await evaluate('document.documentElement.scrollWidth <= innerWidth'), 'Reuse lab mobile horizontal overflow');
+  await screenshot('reuse-zh-light-mobile');
+  console.log('PASS: static reuse lab, clock-gated references, scenarios, strategies and mobile layout');
   assert.deepEqual(exceptions, [], 'Browser JavaScript errors');
   assert.deepEqual(missingAssets, [], 'Missing static assets');
   assert.ok(!requests.some(path => path.includes('/api/') || path.endsWith('.json')), 'Unexpected API/data requests');

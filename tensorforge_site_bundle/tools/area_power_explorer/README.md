@@ -22,6 +22,8 @@ python3 -m tools.area_power_explorer.main serve --host 127.0.0.1 --port 8000
 | --- | --- |
 | `web/area_power_explorer/` | 可维护的 HTML、CSS、JavaScript 源码 |
 | `web/area_power_explorer/ui.mjs` | 双语文案、语言偏好、说明提示的交互 |
+| `web/area_power_explorer/reuse-model.mjs` | 浏览器精度复用组合、完整通路裁剪计算 |
+| `web/area_power_explorer/reuse-data.mjs` | 静态复用数据模板；发布时嵌入当前时钟门控单元测量值 |
 | `web/area_power_explorer/explorer.mjs` | 浏览器查询逻辑；源码仅保留数据占位符 |
 | `artifacts/area_power_explorer/site/` | 默认静态发布目录，已被 Git 忽略 |
 | `artifacts/area_power_explorer/area_power.db` | 离线 SQLite 数据产物 |
@@ -110,3 +112,11 @@ node tests/area_power_explorer/browser_smoke.mjs
 
 双语文案修改放在 `ui.mjs` 的两个字典中，并保持键完整对应。配置值和源模块名保持原始标识。
 直接访问源码目录或以 `file://` 打开不属于支持的预览方式，请使用 `serve` 或构建后运行静态 HTTP 服务。
+
+## 精度复用实验室
+
+打开静态发布目录中的 `reuse.html`。构建器把 18 种模板和 525 个精确组成单元测量值写入 `reuse-data.mjs`，不预计算组合面积。用户浏览器计算 630 个操作点、所需精度下的完整通路裁剪、预算及排名；网页不请求 Python API 或单独的 JSON 文件。数据源与查询页一致，均为当前时钟门控 CSV。发布 CSV 的 `area_unit` 列按 DC schema 留空，面积单位固定为 μm²；功耗列明确为 mW。缺少精确测量时显示不可用，不用预测值或邻近配置替代。
+
+默认 K=32、1410 MHz、全部精度时，S01 面积为 50095.248221 μm²，独立通路基准 S14 为 116005.344502 μm²，节省 56.8%。这是组成单元求和结果，不包含额外集成与互连开销。复用页保留上游中文界面，原有四页继续支持中英切换；所有页面跟随系统深浅主题。
+
+静态发布同时携带 `fonts/noto-sans-sc.woff2` 与 SIL OFL 许可，中文显示不依赖系统字体或外部字体服务。

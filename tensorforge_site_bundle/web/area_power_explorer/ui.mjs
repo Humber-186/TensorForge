@@ -1,6 +1,6 @@
 export const MESSAGES = {
   en: {
-    'nav.query': 'Query', 'nav.ppa': 'PPA Explorer', 'nav.baseline': 'Baseline Compare', 'nav.breakdown': 'Area Breakdown',
+    'nav.reuse': 'Precision Reuse Lab', 'nav.query': 'Query', 'nav.ppa': 'PPA Explorer', 'nav.baseline': 'Baseline Compare', 'nav.breakdown': 'Area Breakdown',
     'language.switch': '简体中文', 'language.label': 'Switch to Simplified Chinese',
     'page.index.title': 'TensorForge: Multi-Precision Tensor Core Design Space Explorer',
     'page.ppa.title': 'TensorForge PPA Explorer', 'page.baseline.title': 'TensorForge Baseline Comparison', 'page.breakdown.title': 'TensorForge Area Breakdown',
@@ -52,7 +52,7 @@ export const MESSAGES = {
     'breakdown.detail': '{series} · {label}: {area} µm² ({share}%)', 'footer.repo': 'Source repository',
   },
   zh: {
-    'nav.query': '配置查询', 'nav.ppa': 'PPA 探索', 'nav.baseline': '基线对比', 'nav.breakdown': '面积分解',
+    'nav.reuse': '精度复用实验室', 'nav.query': '配置查询', 'nav.ppa': 'PPA 探索', 'nav.baseline': '基线对比', 'nav.breakdown': '面积分解',
     'language.switch': 'English', 'language.label': '切换为英文',
     'page.index.title': 'TensorForge：多精度张量核心设计空间探索',
     'page.ppa.title': 'TensorForge PPA 探索', 'page.baseline.title': 'TensorForge 基线对比', 'page.breakdown.title': 'TensorForge 面积分解',

@@ -42,6 +42,8 @@ jobs:
           node --check tensorforge_site_bundle/web/area_power_explorer/ui.mjs
           node --check tensorforge_site_bundle/web/area_power_explorer/app.js
           node --check tensorforge_site_bundle/web/area_power_explorer/charts.js
+          node --check tensorforge_site_bundle/web/area_power_explorer/reuse.js
+          node --check tensorforge_site_bundle/web/area_power_explorer/reuse-model.mjs
       - name: Build static website
         run: python3 -m tensorforge_site_bundle.tools.area_power_explorer.main export-static --out-dir _site
       - name: Check languages, themes, and interactions in Chrome
